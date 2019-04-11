@@ -4,7 +4,7 @@ This file is here to give an intro to the build structure for any new maintainer
 
 ## Dependencies
 
-Dependencies are defined in cmake/Dependencies.cmake, and come in two flavors. Physics packages (ROOT, FastJet) are expected to be installed by the user this way, we don't accidentally conflict with locally installed packages. Other libraries, such as the testing tools (gtest, benchmark), the STAR StPicoEvent framework, and any other C++ functionality are built internally, and are located in third_party. When adding another third party library, if its possible it should be added as a git submodule, and integrated into the build via the cmake project by adding the relevant sripts in cmake/Dependencies.cmake.
+Dependencies are defined in cmake/Dependencies.cmake, and come in two flavors. Physics packages (ROOT, FastJet) are expected to be installed by the user. This way, we don't accidentally conflict with locally installed packages. Other libraries, such as the testing tools (gtest, benchmark), the STAR StPicoEvent framework, and any other C++ functionality are built internally, and are located in third_party. When adding another third party library, if its possible it should be added as a git submodule, and integrated into the build via the cmake project by adding the relevant sripts in cmake/Dependencies.cmake.
 
 ## Modules
 
@@ -16,8 +16,8 @@ The libjetreader build is defined in jetreader/CMakeLists.txt. The primary build
 
 The collection of header and source files is done automatically via a GLOB in each source directory. To accomplish this, some minimal filename conventions are necessary.
 
-header files: extension = .h
-source files: extension = .cc
-gtest test files: ends in = _test.cc
-benchmark  files: ends in = _bench.cc
+header files: extension = .h  
+source files: extension = .cc  
+gtest test files: ends in = _test.cc  
+benchmark  files: ends in = _bench.cc  
 
