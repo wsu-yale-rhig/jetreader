@@ -19,29 +19,10 @@ add_subdirectory(third_party/StPicoEvent)
 list(APPEND JR_DEPENDENCY_LIBS ${PICO_LIBS})
 JR_include_directories(${PICO_INCLUDE_DIRS})
 
-## gflags
-find_package(gflags)
-if(GFLAGS_FOUND)
-  JR_include_directories(${GFLAGS_INCLUDE_DIRS})
-  list(APPEND JR_DEPENDENCY_LIBS ${GFLAGS_LIBRARIES})
-else(GFLAGS_FOUND)
-  message(FATAL_ERROR "gflags library not found")
-endif(GFLAGS_FOUND)
-
-## glog
-find_package(glog)
-if(GLOG_FOUND)
-  set(JR_USE_GLOG 1)
-  JR_include_directories(${GLOG_INCLUDE_DIRS})
-  list(APPEND JR_DEPENDENCY_LIBS ${GLOG_LIBRARIES})
-else(GLOG_FOUND)
-  message(FATAL_ERROR "glog library not found")
-endif(GLOG_FOUND)
-
 ## testing is done via gtest, gmock (currently not used)
 ## and google benchmark. They are compiled as static libraries
 ## and embedded in the test binaries
-if(BUILD_TEST)
+if(BUILD_TESTS)
   set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
   set(BUILD_SHARED_LIBS OFF)
   set(BUILD_GTEST ON CACHE BOOL "build core gtest")
@@ -60,8 +41,4 @@ if(BUILD_TEST)
 
   # restore the build shared libs option.
   set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
-endif()
-
-## set more verbose variable names
-set(JR_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(JR_BUILD_TEST ${BUILD_TEST})
+endif(BUILD_TESTS)

@@ -3,7 +3,7 @@
 ## to avoid the problem, we always put anaconda
 ## include paths after system include paths
 
-function(jr_include_directories)
+function(JR_include_directories)
   foreach(dir IN LISTS ARGN)
     if (${dir} MATCHES "/anaconda")
       include_directories(AFTER SYSTEM ${dir})
