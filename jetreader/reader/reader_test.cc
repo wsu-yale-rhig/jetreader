@@ -37,7 +37,7 @@ std::string GetTestFile() {
 
   if (host.find("warrior") != fail || host.find("rhi1") != fail ||
       host.find("rhi2") != fail || host.find("rhi3") != fail ||
-      host.find("rhi4") != fail)
+      host.find("rhi4") != fail || host.find("wsu") != fail)
     filepath = "/nfs/rhi/STAR/Data/P18ih/AuAu_200_production_low_2014/picos/pico.picoDst.root";
   else if (host.find("gauss") != fail)
     filepath = "/Users/nick/physics/data/pico_test/"
