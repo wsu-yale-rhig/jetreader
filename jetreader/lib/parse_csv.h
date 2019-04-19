@@ -30,7 +30,7 @@ std::vector<std::vector<T>> ParseCsv(std::string filename) {
     if (line[line.find_first_not_of(" \t\n\v\f\r")] == '#')
       continue;
 
-    // strip whitespace
+    // strip whitespace (in theory should not be necessary)
     line.erase(::jetreader::RemoveIf(line.begin(), line.end(), ::isspace),
                line.end());
 
