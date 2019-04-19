@@ -1,7 +1,7 @@
 #ifndef JETREADER_READER_EVENT_SELECTOR_H
 #define JETREADER_READER_EVENT_SELECTOR_H
 
-#include "StPicoEvent/StPicoEvent.h"
+#include "StPicoEvent/StPicoDst.h"
 
 namespace jetreader {
 
@@ -9,7 +9,9 @@ class EventSelector {
 public:
   EventSelector() {}
 
-  bool select(StPicoEvent *event) { return true; }
+  virtual ~EventSelector() {}
+
+  virtual bool select(StPicoDst *event) { return true; }
 
 private:
 };

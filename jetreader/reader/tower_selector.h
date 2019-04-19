@@ -9,7 +9,9 @@ class TowerSelector {
 public:
   TowerSelector() {}
 
-  bool select(StPicoBTowHit *tower) { return true; }
+  virtual ~TowerSelector() {}
+
+  virtual bool select(StPicoBTowHit *tower) { return true; }
 
 private:
 };

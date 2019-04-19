@@ -9,7 +9,9 @@ class TrackSelector {
 public:
   TrackSelector() {}
 
-  bool select(StPicoTrack *track) { return true; }
+  virtual ~TrackSelector() {}
+
+  virtual bool select(StPicoTrack *track) { return true; }
 
 private:
 };
