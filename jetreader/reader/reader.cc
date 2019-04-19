@@ -80,7 +80,7 @@ std::vector<fastjet::PseudoJet> &Reader::pseudojets() {
     return pseudojets_;
   }
   bool status = false;
-  if (chain()->GetBranchStatus("Tracks")) {
+  if (chain()->GetBranchStatus("Track")) {
     selectTracks();
     status = true;
   }
@@ -136,7 +136,7 @@ void Reader::selectTowers() {
   for (unsigned i = 0; i < picoDst()->numberOfBTowHits(); ++i) {
     StPicoBTowHit *tower = picoDst()->btowHit(i);
     if (tower_selector_->select(tower)) {
-      pseudojets_.push_back(MakePseudoJet(*tower, i, vertex));
+      pseudojets_.push_back(MakePseudoJet(*tower, vertex, i));
     }
   }
 }

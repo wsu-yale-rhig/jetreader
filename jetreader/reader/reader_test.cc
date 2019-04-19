@@ -38,11 +38,10 @@ std::string GetTestFile() {
   if (host.find("warrior") != fail || host.find("rhi1") != fail ||
       host.find("rhi2") != fail || host.find("rhi3") != fail ||
       host.find("rhi4") != fail)
-    filepath = "/nfs/rhi/STAR/Data/P16id/pico_compare/production_pAu200_2015/"
-               "stpicodst/st_physics_16124034_raw_5500002.picoDst.root";
+    filepath = "/nfs/rhi/STAR/Data/P18ih/AuAu_200_production_low_2014/picos/pico.picoDst.root";
   else if (host.find("gauss") != fail)
     filepath = "/Users/nick/physics/data/pico_test/"
-               "st_physics_16124034_raw_5500002.picoDst.root";
+               "pico.picoDst.root";
   else
     JETREADER_THROW("Could not identify hostname: no input file found");
 
@@ -64,22 +63,20 @@ TEST(Reader, Load) {
   std::string filename = GetTestFile();
 
   jetreader::Reader reader(filename);
-  TurnOffBranches(reader);
   reader.init();
 
-  EXPECT_EQ(reader.chain()->GetEntries(), 1727);
+  EXPECT_EQ(reader.chain()->GetEntries(), 10164);
 }
 
 TEST(Reader, ReadEvent) {
   std::string filename = GetTestFile();
 
   jetreader::Reader reader(filename);
-  TurnOffBranches(reader);
   reader.init();
 
   EXPECT_NE(reader.readEvent(5), 0);
-  EXPECT_EQ(reader.picoDst()->event()->runId(), 16124034);
-  EXPECT_EQ(reader.picoDst()->event()->eventId(), 1790);
+  EXPECT_EQ(reader.picoDst()->event()->runId(), 15121012);
+  EXPECT_EQ(reader.picoDst()->event()->eventId(), 8283);
 }
 
 TEST(Reader, Next) {
@@ -100,14 +97,13 @@ TEST(Reader, Next) {
     continue;
   }
 
-  EXPECT_EQ(reader.chain()->GetReadEntry(), 1726);
+  EXPECT_EQ(reader.chain()->GetReadEntry(), 10163);
 }
 
 TEST(Reader, MixedReading) {
   std::string filename = GetTestFile();
 
   jetreader::Reader reader(filename);
-  TurnOffBranches(reader);
   reader.init();
 
   reader.readEvent(10);
@@ -140,6 +136,19 @@ TEST(Reader, OverloadSelector) {
   }
 
   EXPECT_EQ(0, accepted_events);
+}
+
+TEST(Reader, BasicPseudoJets) {
+  std::string filename = GetTestFile();
+
+  jetreader::Reader reader(filename);
+  reader.init();
+
+  reader.next();  
+  auto& jets = reader.pseudojets();
+
+  EXPECT_GT(jets.size(), 0);
+
 }
 
 #endif

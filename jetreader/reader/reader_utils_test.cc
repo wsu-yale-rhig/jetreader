@@ -76,8 +76,6 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   double e = 5.2;
   TVector3 vertex(0, 0, 0);
 
-  TVector3 vertex(0, 0, 3);
-
   tow.setAdc(adc);
   tow.setEnergy(e);
 
