@@ -28,7 +28,7 @@ endif(JR_BENCH_SRCS)
 install(FILES ${JR_HDRS} DESTINATION include/jetreader/lib)
 
 ## add subdirectories
-## none
+add_subdirectory(memory)
 
 ## export file lists to parent scope
 set(JR_SRCS ${JR_SRCS} PARENT_SCOPE)
