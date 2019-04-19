@@ -29,18 +29,8 @@ TEST(ParseCsv, SingleTest) {
   auto result = jetreader::ParseCsv<int>(FILE_NAME);
 
   // compare the results
-  EXPECT_EQ(result.size(), expected_result.size());
+  EXPECT_EQ(result, expected_result);
 
-  if (result.size() == expected_result.size()) {
-    for (int i = 0; i < result.size(); ++i) {
-      EXPECT_EQ(result[i].size(), expected_result[i].size());
-      if (result[i].size() == expected_result[i].size()) {
-        for (int j = 0; j < result[i].size(); ++j) {
-          EXPECT_EQ(result[i][j], expected_result[i][j]);
-        }
-      }
-    }
-  }
 
   // delete test file
   remove(FILE_NAME.c_str());
