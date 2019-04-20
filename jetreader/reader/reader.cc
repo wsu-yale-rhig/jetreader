@@ -117,14 +117,14 @@ void Reader::selectTracks() {
   if (use_primary_tracks_) {
     for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
       StPicoTrack *track = picoDst()->track(i);
-      if (track->isPrimary() && track_selector_->select(track)) {
+      if (track->isPrimary() && track_selector_->select(track, vertex)) {
         pseudojets_.push_back(MakePseudoJet(*track, vertex, true));
       }
     }
   } else {
     for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
       StPicoTrack *track = picoDst()->track(i);
-      if (track_selector_->select(track)) {
+      if (track_selector_->select(track, vertex)) {
         pseudojets_.push_back(MakePseudoJet(*track, vertex, false));
       }
     }
