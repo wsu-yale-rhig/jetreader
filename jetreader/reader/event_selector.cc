@@ -15,6 +15,7 @@ EventSelector::EventSelector() { clear(); }
 bool EventSelector::select(StPicoDst *dst) {
   if ((vx_active_ && !checkVx(dst)) || (vy_active_ && !checkVy(dst)) ||
       (vz_active_ && !checkVz(dst)) || (dvz_active_ && !checkdVz(dst)) ||
+      (vr_active_ && !checkVr(dst)) ||
       (refmult_active_ && !checkRefMult(dst)) ||
       (trigger_ids_active_ && !checkTriggerId(dst)) ||
       (bad_run_ids_active_ && !checkRunId(dst)) ||
@@ -48,6 +49,12 @@ void EventSelector::setdVzMax(double max) {
   JETREADER_ASSERT(max > 0.0, "max dVz must be greater than 0.0");
   dvz_max_ = max;
   dvz_active_ = true;
+}
+
+void EventSelector::setVrMax(double max) {
+  JETREADER_ASSERT(max > 0.0, "max Vr must be greater than 0.0");
+  vr_max_ = max;
+  vr_active_ = true;
 }
 
 void EventSelector::setRefMultRange(unsigned min, unsigned max, MultType mult) {
@@ -103,6 +110,7 @@ void EventSelector::clear() {
   vy_active_ = false;
   vz_active_ = false;
   dvz_active_ = false;
+  vr_active_ = false;
   refmult_active_ = false;
   max_pt_active_ = false;
   max_et_active_ = false;
@@ -117,6 +125,7 @@ void EventSelector::clear() {
   vz_min_ = 0.0;
   vz_max_ = 0.0;
   dvz_max_ = 0.0;
+  vr_max_ = 0.0;
   refmult_type_ = MultType::REFMULT;
   refmult_min_ = 0;
   refmult_max_ = 0;
@@ -144,6 +153,13 @@ bool EventSelector::checkVz(StPicoDst *dst) {
 bool EventSelector::checkdVz(StPicoDst *dst) {
   double dvz = abs(dst->event()->vzVpd() - dst->event()->primaryVertex().Z());
   return dvz < dvz_max_;
+}
+
+bool EventSelector::checkVr(StPicoDst *dst) {
+  double vx = dst->event()->primaryVertex().X();
+  double vy = dst->event()->primaryVertex().Y();
+  double vr = sqrt(vx*vx + vy*vy);
+  return vr < vr_max_;
 }
 
 bool EventSelector::checkRefMult(StPicoDst *dst) {

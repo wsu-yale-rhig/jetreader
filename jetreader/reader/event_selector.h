@@ -29,6 +29,10 @@ public:
   // Select on |vz - VPD vz| (vpd = vertex position detector)
   void setdVzMax(double max);
 
+  // Selection on Distance from the center of the beam pipe in the transverse
+  // plane (r = sqrt(x*x+y*y))
+  void setVrMax(double max);
+
   // Select on refmult. Can choose refmult1 - refmult4 or grefmult (refmult, in
   // any form, is a measure of the charged track multiplicity in the event -
   // correlates with centrality)
@@ -59,6 +63,7 @@ protected:
   bool checkVy(StPicoDst *dst);
   bool checkVz(StPicoDst *dst);
   bool checkdVz(StPicoDst *dst);
+  bool checkVr(StPicoDst *dst);
   bool checkRefMult(StPicoDst *dst);
   bool checkTriggerId(StPicoDst *dst);
   bool checkRunId(StPicoDst *dst);
@@ -72,6 +77,7 @@ private:
   bool vy_active_;
   bool vz_active_;
   bool dvz_active_;
+  bool vr_active_;
   bool refmult_active_;
   bool max_pt_active_;
   bool max_et_active_;
@@ -87,6 +93,7 @@ private:
   double vz_min_;
   double vz_max_;
   double dvz_max_;
+  double vr_max_;
 
   MultType refmult_type_;
   unsigned refmult_min_;
