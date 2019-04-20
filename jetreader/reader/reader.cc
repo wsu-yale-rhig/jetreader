@@ -135,7 +135,7 @@ void Reader::selectTowers() {
   TVector3 vertex = picoDst()->event()->primaryVertex();
   for (unsigned i = 0; i < picoDst()->numberOfBTowHits(); ++i) {
     StPicoBTowHit *tower = picoDst()->btowHit(i);
-    if (tower_selector_->select(tower)) {
+    if (tower_selector_->select(tower, i)) {
       pseudojets_.push_back(MakePseudoJet(*tower, vertex, i));
     }
   }
