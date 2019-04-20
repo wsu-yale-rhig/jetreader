@@ -30,6 +30,7 @@ TEST(EventSelector, Vertex) {
   double vz_min = -20.0;
   double vz_max = 20.0;
   double dvz_max = 2.0;
+  double vr_max = 1.0;
 
   std::string filename = jetreader::GetTestFile();
 
@@ -42,6 +43,7 @@ TEST(EventSelector, Vertex) {
   selector.setVyRange(vy_min, vy_max);
   selector.setVzRange(vz_min, vz_max);
   selector.setdVzMax(dvz_max);
+  selector.setVrMax(1.0);
 
   while (reader.next()) {
     double vx = reader.picoDst()->event()->primaryVertex().X();
