@@ -17,12 +17,12 @@ Reader::Reader(const std::string &input_file)
 Reader::~Reader() {}
 
 bool Reader::next() {
+  // clear last event
+  clear();
+
   if (chain() == nullptr) {
     JETREADER_THROW("No input file loaded: next() failed");
   }
-
-  // clear last event
-  clear();
 
   // last valid index in the chain
   int64_t last_event_index = chain()->GetEntries() - 1;
@@ -33,15 +33,14 @@ bool Reader::next() {
 
   while (chain()->GetReadEvent() < last_event_index) {
     // attempt to load the next event
-    bool status = readEvent(++index_);
+    EventStatus load_status = readEvent(++index_);
 
-    if (status) {
-      if (event_selector_->select(picoDst())) {
-        return true;
-      } else {
-        continue;
-      }
-    } else {
+    switch (load_status) {
+    case EventStatus::acceptEvent:
+      return true;
+    case EventStatus::rejectEvent:
+      continue;
+    case EventStatus::ioFailure:
       if (++io_errors >= 10)
         JETREADER_THROW("IO failure for ", io_errors, " events: exiting");
     }
@@ -49,50 +48,37 @@ bool Reader::next() {
   return false;
 }
 
-bool Reader::readEvent(size_t idx) {
-  if (chain() == nullptr) {
-    JETREADER_THROW("No input file loaded: readEvent() failed");
-  }
-
+EventStatus Reader::readEvent(size_t idx) {
   // clear last event
   clear();
 
-  if (idx >= chain()->GetEntries() || idx < 0) {
+  if (chain() == nullptr)
+    JETREADER_THROW("No input file loaded: readEvent() failed");
+
+  if (idx >= chain()->GetEntries() || idx < 0)
     JETREADER_THROW("Requested index: ", idx, "out of bounds: ", " chain has ",
                     chain()->GetEntries(), "events");
-  }
 
+  // attempt to load the requested event
   index_ = idx;
-  return chain()->GetEntry(idx);
+  if (chain()->GetEntry(idx) == 0)
+    return EventStatus::ioFailure;
+
+  // process event
+  if (makeEvent() == true)
+    return EventStatus::acceptEvent;
+  else
+    return EventStatus::rejectEvent;
 }
 
 void Reader::init() { StPicoDstReader::Init(); }
 
 std::vector<fastjet::PseudoJet> &Reader::pseudojets() {
   // make sure the event was loaded through readEvent(), not directly through
-  // the chain
+  // the chain; this prevents loading an event in the chain and getting a
+  // "stale" set of pseudojets
   if (chain()->GetReadEvent() != index_) {
     readEvent(chain()->GetReadEvent());
-  }
-
-  // if the event has already been processed, we don't have to redo the work
-  if (pseudojets_.size() > 0) {
-    return pseudojets_;
-  }
-  bool status = false;
-  if (chain()->GetBranchStatus("Track")) {
-    selectTracks();
-    status = true;
-  }
-  if (chain()->GetBranchStatus("BTowHit")) {
-    // selectTowers();
-    status = true;
-  }
-
-  if (!status) {
-    std::cerr << "requesting pseudojets, but Tracks and Barrel Calorimeter hit "
-                 "branches have been disabled"
-              << std::endl;
   }
 
   return pseudojets_;
@@ -112,33 +98,63 @@ void Reader::setTowerSelector(TowerSelector *selector) {
 
 void Reader::clear() { pseudojets_.clear(); }
 
-void Reader::selectTracks() {
+bool Reader::makeEvent() {
+  bool event_status = true;
+
+  // first, check event with EventSelector
+  if (!event_selector_->select(picoDst()))
+    event_status = false;
+
+  // now process all tracks and towers, if they are loaded
+  if (chain()->GetBranchStatus("Track"))
+    if (!selectTracks())
+      event_status = false;
+  if (chain()->GetBranchStatus("BTowHit"))
+    if (!selectTowers())
+      event_status = false;
+
+  return event_status;
+}
+
+bool Reader::selectTracks() {
+  bool event_status = true;
   TVector3 vertex = picoDst()->event()->primaryVertex();
   if (use_primary_tracks_) {
     for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
       StPicoTrack *track = picoDst()->track(i);
-      if (track->isPrimary() && track_selector_->select(track, vertex)) {
-        pseudojets_.push_back(MakePseudoJet(*track, vertex, true));
+      if (track->isPrimary()) {
+        TrackStatus track_status = track_selector_->select(track, vertex);
+        if (track_status == TrackStatus::acceptTrack)
+          pseudojets_.push_back(MakePseudoJet(*track, vertex, true));
+        else if (track_status == TrackStatus::rejectEvent)
+          event_status = false;
       }
     }
   } else {
     for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
       StPicoTrack *track = picoDst()->track(i);
-      if (track_selector_->select(track, vertex)) {
+      TrackStatus track_status = track_selector_->select(track, vertex, false);
+      if (track_status == TrackStatus::acceptTrack)
         pseudojets_.push_back(MakePseudoJet(*track, vertex, false));
-      }
+      else if (track_status == TrackStatus::rejectEvent)
+        event_status = false;
     }
   }
+  return event_status;
 }
 
-void Reader::selectTowers() {
+bool Reader::selectTowers() {
+  bool event_status = true;
   TVector3 vertex = picoDst()->event()->primaryVertex();
   for (unsigned i = 0; i < picoDst()->numberOfBTowHits(); ++i) {
     StPicoBTowHit *tower = picoDst()->btowHit(i);
-    if (tower_selector_->select(tower, i)) {
+    TowerStatus tower_status = tower_selector_->select(tower, i);
+    if (tower_status == TowerStatus::acceptTower)
       pseudojets_.push_back(MakePseudoJet(*tower, vertex, i));
-    }
+    else if (tower_status == TowerStatus::rejectEvent)
+      event_status = false;
   }
+  return event_status;
 }
 
 } // namespace jetreader

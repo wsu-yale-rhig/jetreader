@@ -16,6 +16,9 @@ public:
     return TrackSelector::checkNHitsFrac(track);
   }
   bool checkChi2(StPicoTrack *track) { return TrackSelector::checkChi2(track); }
+  bool checkPt(StPicoTrack *track, bool is_primary = true) {
+    return TrackSelector::checkPt(track, is_primary);
+  }
 };
 
 TEST(TrackSelector, Dca) {
@@ -30,15 +33,19 @@ TEST(TrackSelector, Dca) {
 
   TestSelector selector;
 
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(true, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&bad_track, vertex));
 
   selector.setDcaMax(dca_max);
 
   EXPECT_EQ(true, selector.checkDca(&good_track, vertex));
   EXPECT_EQ(false, selector.checkDca(&bad_track, vertex));
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(false, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
 }
 
 TEST(TrackSelector, NHits) {
@@ -53,15 +60,19 @@ TEST(TrackSelector, NHits) {
 
   TestSelector selector;
 
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(true, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&bad_track, vertex));
 
   selector.setNHitsMin(nhits_cut);
 
   EXPECT_EQ(true, selector.checkNHits(&good_track));
   EXPECT_EQ(false, selector.checkNHits(&bad_track));
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(false, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
 }
 
 TEST(TrackSelector, NHitsFrac) {
@@ -78,15 +89,19 @@ TEST(TrackSelector, NHitsFrac) {
 
   TestSelector selector;
 
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(true, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&bad_track, vertex));
 
   selector.setNHitsFracMin(nhits_frac_cut);
 
   EXPECT_EQ(true, selector.checkNHitsFrac(&good_track));
   EXPECT_EQ(false, selector.checkNHitsFrac(&bad_track));
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(false, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
 }
 
 TEST(TrackSelector, Chi2) {
@@ -101,13 +116,47 @@ TEST(TrackSelector, Chi2) {
 
   TestSelector selector;
 
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(true, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&bad_track, vertex));
 
   selector.setChi2Max(chi2_cut);
 
   EXPECT_EQ(true, selector.checkChi2(&good_track));
   EXPECT_EQ(false, selector.checkChi2(&bad_track));
-  EXPECT_EQ(true, selector.select(&good_track, vertex));
-  EXPECT_EQ(false, selector.select(&bad_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
+}
+
+TEST(TrackSelector, PtMax) {
+
+  TestSelector selector;
+  selector.setPtMax(10);
+
+  StPicoTrack good_track;
+  StPicoTrack bad_track;
+  TVector3 vertex(0, 0, 0);
+
+  good_track.setPrimaryMomentum(5.0, 0, 0);
+  bad_track.setPrimaryMomentum(15.0, 0, 0);
+
+  EXPECT_EQ(true, selector.checkPt(&good_track, true));
+  EXPECT_EQ(false, selector.checkPt(&bad_track, true));
+
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectEvent,
+            selector.select(&bad_track, vertex));
+
+  selector.rejectEventOnPtFailure(false);
+
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
+
+  StPicoTrack global_track;
+  global_track.setGlobalMomentum(20.0, 0, 0);
+  EXPECT_EQ(true, selector.checkPt(&global_track));
 }

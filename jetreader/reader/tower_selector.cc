@@ -6,10 +6,17 @@ namespace jetreader {
 
 TowerSelector::TowerSelector() { clear(); }
 
-bool TowerSelector::select(StPicoBTowHit *tower, unsigned id) {
+TowerStatus TowerSelector::select(StPicoBTowHit *tower, unsigned id) {
   if ((bad_towers_active_ && !checkBadTowers(tower, id)))
-    return false;
-  return true;
+    return TowerStatus::rejectTower;
+
+  if ((et_active_ && !checkEt(tower, id))) {
+    if (reject_event_on_et_failure_)
+      return TowerStatus::rejectEvent;
+    else
+      return TowerStatus::rejectTower;
+  }
+  return TowerStatus::acceptTower;
 }
 
 void TowerSelector::addBadTower(unsigned tower_id) {
@@ -34,14 +41,33 @@ void TowerSelector::addBadTowers(std::string filename) {
     bad_towers_active_ = true;
 }
 
+void TowerSelector::setEtMax(double max) {
+  JETREADER_ASSERT(max > 0, "ET cut must be greater than zero");
+  max_et_ = max;
+  et_active_ = true;
+}
+
+void TowerSelector::rejectEventOnEtFailure(bool flag) {
+  reject_event_on_et_failure_ = flag;
+}
+
 void TowerSelector::clear() {
   bad_towers_active_ = false;
+  et_active_ = false;
+  reject_event_on_et_failure_ = true;
 
   bad_towers_.clear();
+
+  max_et_ = 0.0;
 }
 
 bool TowerSelector::checkBadTowers(StPicoBTowHit *tower, unsigned id) {
   return (bad_towers_.find(id) == bad_towers_.end());
+}
+
+bool TowerSelector::checkEt(StPicoBTowHit *tower, unsigned id) {
+  double et = tower->energy();
+  return et < max_et_;
 }
 
 } // namespace jetreader

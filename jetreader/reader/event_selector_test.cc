@@ -18,8 +18,6 @@ public:
     return EventSelector::checkTriggerId(dst);
   }
   bool checkRunId(StPicoDst *dst) { return EventSelector::checkRunId(dst); }
-  bool checkMaxPt(StPicoDst *dst) { return EventSelector::checkMaxPt(dst); }
-  bool checkMaxEt(StPicoDst *dst) { return EventSelector::checkMaxEt(dst); }
 };
 
 TEST(EventSelector, Vertex) {
@@ -78,9 +76,9 @@ TEST(EventSelector, RefMult) {
   unsigned ref_min = 100;
   unsigned ref_max = 200;
   using jetreader::MultType;
-  std::set<MultType> reftypes{MultType::REFMULT, MultType::REFMULT2,
-                              MultType::REFMULT3, MultType::REFMULT4,
-                              MultType::GREFMULT};
+  std::set<MultType> reftypes{MultType::refMult, MultType::refMult2,
+                              MultType::refMult3, MultType::refMult4,
+                              MultType::gRefMult};
   TestSelector selector;
 
   std::string filename = jetreader::GetTestFile();
@@ -95,19 +93,19 @@ TEST(EventSelector, RefMult) {
     while (reader.next()) {
       unsigned refmult = 0;
       switch (test_var) {
-      case MultType::REFMULT:
+      case MultType::refMult:
         refmult = reader.picoDst()->event()->refMult();
         break;
-      case MultType::REFMULT2:
+      case MultType::refMult2:
         refmult = reader.picoDst()->event()->refMult2();
         break;
-      case MultType::REFMULT3:
+      case MultType::refMult3:
         refmult = reader.picoDst()->event()->refMult3();
         break;
-      case MultType::REFMULT4:
+      case MultType::refMult4:
         refmult = reader.picoDst()->event()->refMult4();
         break;
-      case MultType::GREFMULT:
+      case MultType::gRefMult:
         refmult = reader.picoDst()->event()->grefMult();
         break;
       }
@@ -124,19 +122,19 @@ TEST(EventSelector, RefMult) {
     while (reader.next()) {
       unsigned refmult = 0;
       switch (test_var) {
-      case MultType::REFMULT:
+      case MultType::refMult:
         refmult = reader.picoDst()->event()->refMult();
         break;
-      case MultType::REFMULT2:
+      case MultType::refMult2:
         refmult = reader.picoDst()->event()->refMult2();
         break;
-      case MultType::REFMULT3:
+      case MultType::refMult3:
         refmult = reader.picoDst()->event()->refMult3();
         break;
-      case MultType::REFMULT4:
+      case MultType::refMult4:
         refmult = reader.picoDst()->event()->refMult4();
         break;
-      case MultType::GREFMULT:
+      case MultType::gRefMult:
         refmult = reader.picoDst()->event()->grefMult();
         break;
       }
@@ -210,40 +208,5 @@ TEST(EventSelector, BadRuns) {
   while (reader.next()) {
     // there is only one run-id in the test file. it should always fail
     EXPECT_EQ(false, true);
-  }
-}
-
-TEST(EventSelector, MaxPtEt) {
-  double max_pt = 5;
-  double max_et = 5;
-
-  TestSelector selector;
-  selector.setTrackPtMax(max_pt);
-  selector.setTowerEtMax(max_et);
-
-  std::string filename = jetreader::GetTestFile();
-
-  jetreader::Reader reader(filename);
-  TurnOffMostBranches(reader);
-  reader.init();
-
-  for (int i = 0; i < 100; ++i) {
-    reader.readEvent(i);
-    bool track_status = true;
-    bool tower_status = true;
-    
-    for (int j = 0; j < reader.picoDst()->numberOfTracks(); ++j) {
-      StPicoTrack* track = reader.picoDst()->track(j);
-      if (track->isPrimary() && track->pPt() > max_pt)
-        track_status = false;
-    }
-    for (int j = 0; j < reader.picoDst()->numberOfBTowHits(); ++j) {
-      StPicoBTowHit* tow = reader.picoDst()->btowHit(j);
-      if (tow->energy() > max_et)
-        tower_status = false;
-    }
-    EXPECT_EQ(track_status, selector.checkMaxPt(reader.picoDst()));
-    EXPECT_EQ(tower_status, selector.checkMaxEt(reader.picoDst()));
-    EXPECT_EQ(track_status && tower_status, selector.select(reader.picoDst()));
   }
 }

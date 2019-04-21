@@ -11,11 +11,6 @@
 #include <set>
 #include <string>
 
-// to enable testing the reader, we need a file to read :)
-// we can locate a file depending which machine we're on,
-// so we lookup the machine hostname. Not implemented on
-// windows.
-
 TEST(Reader, Load) {
   std::string filename = jetreader::GetTestFile();
 
@@ -31,7 +26,7 @@ TEST(Reader, ReadEvent) {
   jetreader::Reader reader(filename);
   reader.init();
 
-  EXPECT_NE(reader.readEvent(5), 0);
+  EXPECT_NE(jetreader::EventStatus::rejectEvent, reader.readEvent(5));
   EXPECT_EQ(reader.picoDst()->event()->runId(), 15121012);
   EXPECT_EQ(reader.picoDst()->event()->eventId(), 8283);
 }
@@ -72,7 +67,7 @@ TEST(Reader, MixedReading) {
 
 class TestSelector : public jetreader::EventSelector {
 public:
-  bool select(StPicoDst *event) { return false; }
+  bool select(StPicoDst *dst) {return false;}
 };
 
 TEST(Reader, OverloadSelector) {
@@ -99,6 +94,7 @@ TEST(Reader, BasicPseudoJets) {
   std::string filename = jetreader::GetTestFile();
 
   jetreader::Reader reader(filename);
+  TurnOffMostBranches(reader);
   reader.init();
 
   reader.next();

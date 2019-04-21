@@ -4,9 +4,7 @@
 #include "jetreader/lib/parse_csv.h"
 #include "jetreader/reader/trigger_lookup.h"
 
-#include "StPicoEvent/StPicoBTowHit.h"
 #include "StPicoEvent/StPicoEvent.h"
-#include "StPicoEvent/StPicoTrack.h"
 
 namespace jetreader {
 
@@ -18,9 +16,7 @@ bool EventSelector::select(StPicoDst *dst) {
       (vr_active_ && !checkVr(dst)) ||
       (refmult_active_ && !checkRefMult(dst)) ||
       (trigger_ids_active_ && !checkTriggerId(dst)) ||
-      (bad_run_ids_active_ && !checkRunId(dst)) ||
-      (max_pt_active_ && !checkMaxPt(dst)) ||
-      (max_et_active_ && !checkMaxEt(dst)))
+      (bad_run_ids_active_ && !checkRunId(dst)))
     return false;
   return true;
 }
@@ -91,18 +87,6 @@ void EventSelector::addBadRuns(std::string bad_run_file) {
     bad_run_ids_active_ = true;
 }
 
-void EventSelector::setTrackPtMax(double max, bool use_globals) {
-  JETREADER_ASSERT(max > 0.0, "max track pT must be greater than zero");
-  max_pt_ = max;
-  max_pt_active_ = true;
-  use_globals_ = use_globals;
-}
-void EventSelector::setTowerEtMax(double max) {
-  JETREADER_ASSERT(max > 0.0, "max tower ET must be greater than zero");
-  max_et_ = max;
-  max_et_active_ = true;
-}
-
 void EventSelector::clear() {
   trigger_ids_active_ = false;
   bad_run_ids_active_ = false;
@@ -112,8 +96,6 @@ void EventSelector::clear() {
   dvz_active_ = false;
   vr_active_ = false;
   refmult_active_ = false;
-  max_pt_active_ = false;
-  max_et_active_ = false;
 
   trigger_ids_.clear();
   bad_run_ids_.clear();
@@ -126,13 +108,9 @@ void EventSelector::clear() {
   vz_max_ = 0.0;
   dvz_max_ = 0.0;
   vr_max_ = 0.0;
-  refmult_type_ = MultType::REFMULT;
+  refmult_type_ = MultType::refMult;
   refmult_min_ = 0;
   refmult_max_ = 0;
-  use_globals_ = false;
-  ;
-  max_pt_ = 0.0;
-  max_et_ = 0.0;
 }
 
 bool EventSelector::checkVx(StPicoDst *dst) {
@@ -158,26 +136,26 @@ bool EventSelector::checkdVz(StPicoDst *dst) {
 bool EventSelector::checkVr(StPicoDst *dst) {
   double vx = dst->event()->primaryVertex().X();
   double vy = dst->event()->primaryVertex().Y();
-  double vr = sqrt(vx*vx + vy*vy);
+  double vr = sqrt(vx * vx + vy * vy);
   return vr < vr_max_;
 }
 
 bool EventSelector::checkRefMult(StPicoDst *dst) {
   int refmult = 0;
   switch (refmult_type_) {
-  case MultType::REFMULT:
+  case MultType::refMult:
     refmult = dst->event()->refMult();
     break;
-  case MultType::REFMULT2:
+  case MultType::refMult2:
     refmult = dst->event()->refMult2();
     break;
-  case MultType::REFMULT3:
+  case MultType::refMult3:
     refmult = dst->event()->refMult3();
     break;
-  case MultType::REFMULT4:
+  case MultType::refMult4:
     refmult = dst->event()->refMult4();
     break;
-  case MultType::GREFMULT:
+  case MultType::gRefMult:
     refmult = dst->event()->grefMult();
     break;
   }
@@ -195,32 +173,6 @@ bool EventSelector::checkTriggerId(StPicoDst *dst) {
 bool EventSelector::checkRunId(StPicoDst *dst) {
   unsigned runid = dst->event()->runId();
   return bad_run_ids_.find(runid) == bad_run_ids_.end();
-}
-
-bool EventSelector::checkMaxPt(StPicoDst *dst) {
-  if (use_globals_) {
-    for (int i = 0; i < dst->numberOfTracks(); ++i) {
-      StPicoTrack *track = dst->track(i);
-      if (track->gPt() > max_pt_)
-        return false;
-    }
-  } else {
-    for (int i = 0; i < dst->numberOfTracks(); ++i) {
-      StPicoTrack *track = dst->track(i);
-      if (track->isPrimary() && track->pPt() > max_pt_)
-        return false;
-    }
-  }
-  return true;
-}
-
-bool EventSelector::checkMaxEt(StPicoDst *dst) {
-  for (int i = 0; i < dst->numberOfBTowHits(); ++i) {
-    StPicoBTowHit *tow = dst->btowHit(i);
-    if (tow->energy() > max_et_)
-      return false;
-  }
-  return true;
 }
 
 } // namespace jetreader

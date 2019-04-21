@@ -5,6 +5,8 @@
 
 namespace jetreader {
 
+enum class TrackStatus { rejectEvent, rejectTrack, acceptTrack };
+
 class TrackSelector {
 public:
   TrackSelector();
@@ -13,8 +15,12 @@ public:
 
   // primary method called by the reader to select a track. Returns true if no
   // active selection criteria are failed, false otherwise. Vertex is the space
-  // point used for calculating DCA
-  virtual bool select(StPicoTrack *track, TVector3 vertex);
+  // point used for calculating DCA. Use the is_primary flag to specify primary
+  // track pT or global track pT for pT selection. Note that if is_primary is
+  // set to true for global tracks, they will always pass the pT selection.
+  // (global track's primary pT is 0)
+  virtual TrackStatus select(StPicoTrack *track, TVector3 vertex,
+                             bool is_primary = true);
 
   // select on DCA (DCA = distance of closest approach of the track helix to the
   // primary vertex)
@@ -34,6 +40,13 @@ public:
   // fit)
   void setChi2Max(double max);
 
+  // set a maximum pT cut for tracks.
+  void setPtMax(double max);
+
+  // if this flag is turned on, if any track fails the pT cut then the entire
+  // event is rejected. This is turned on by default
+  void rejectEventOnPtFailure(bool flag = true);
+
   // clears all selection criteria back to default (no cut)
   void clear();
 
@@ -42,17 +55,21 @@ protected:
   bool checkNHits(StPicoTrack *track);
   bool checkNHitsFrac(StPicoTrack *track);
   bool checkChi2(StPicoTrack *track);
+  bool checkPt(StPicoTrack *track, bool is_primary);
 
 private:
   bool dca_active_;
   bool nhits_active_;
   bool nhits_frac_active_;
   bool chi2_active_;
+  bool pt_active_;
+  bool reject_event_on_pt_failure_;
 
   double dca_max_;
   unsigned nhits_min_;
   double nhits_frac_min_;
   double chi2_max_;
+  double pt_max_;
 };
 
 } // namespace jetreader

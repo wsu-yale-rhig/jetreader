@@ -6,13 +6,22 @@ namespace jetreader {
 
 TrackSelector::TrackSelector() { clear(); }
 
-bool TrackSelector::select(StPicoTrack *track, TVector3 vertex) {
+TrackStatus TrackSelector::select(StPicoTrack *track, TVector3 vertex,
+                                  bool is_primary) {
   if ((dca_active_ && !checkDca(track, vertex)) ||
       (nhits_active_ && !checkNHits(track)) ||
       (nhits_frac_active_ && !checkNHitsFrac(track)) ||
       (chi2_active_ && !checkChi2(track)))
-    return false;
-  return true;
+    return TrackStatus::rejectTrack;
+
+  if (pt_active_ && !checkPt(track, is_primary)) {
+    if (reject_event_on_pt_failure_)
+      return TrackStatus::rejectEvent;
+    else
+      return TrackStatus::rejectTrack;
+  }
+
+  return TrackStatus::acceptTrack;
 }
 
 void TrackSelector::setDcaMax(double max) {
@@ -40,16 +49,29 @@ void TrackSelector::setChi2Max(double max) {
   chi2_active_ = true;
 }
 
+void TrackSelector::setPtMax(double max) {
+  JETREADER_ASSERT(max > 0, "pT cut must be greater than zero");
+  pt_max_ = max;
+  pt_active_ = true;
+}
+
+void TrackSelector::rejectEventOnPtFailure(bool flag) {
+  reject_event_on_pt_failure_ = flag;
+}
+
 void TrackSelector::clear() {
   dca_active_ = false;
   nhits_active_ = false;
   nhits_frac_active_ = false;
   chi2_active_ = false;
+  pt_active_ = false;
+  reject_event_on_pt_failure_ = true;
 
   dca_max_ = 0.0;
   nhits_min_ = 0;
   nhits_frac_min_ = 0.0;
   chi2_max_ = 0.0;
+  pt_max_ = 0.0;
 }
 
 bool TrackSelector::checkDca(StPicoTrack *track, TVector3 vertex) {
@@ -58,17 +80,26 @@ bool TrackSelector::checkDca(StPicoTrack *track, TVector3 vertex) {
 }
 bool TrackSelector::checkNHits(StPicoTrack *track) {
   unsigned nhits = track->nHits();
-  return  nhits > nhits_min_;
+  return nhits > nhits_min_;
 }
 
 bool TrackSelector::checkNHitsFrac(StPicoTrack *track) {
-  double nhits_frac = (double) track->nHits() / track->nHitsPoss();
+  double nhits_frac = (double)track->nHits() / track->nHitsPoss();
   return nhits_frac > nhits_frac_min_;
 }
 
 bool TrackSelector::checkChi2(StPicoTrack *track) {
   double chi2 = track->chi2();
   return chi2 < chi2_max_;
+}
+
+bool TrackSelector::checkPt(StPicoTrack *track, bool is_primary) {
+  double pt = 0.0;
+  if (is_primary)
+    pt = track->pPt();
+  else
+    pt = track->gPt();
+  return pt < pt_max_;
 }
 
 } // namespace jetreader

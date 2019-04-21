@@ -1,6 +1,8 @@
 #ifndef JETREADER_READER_EVENT_SELECTOR_H
 #define JETREADER_READER_EVENT_SELECTOR_H
 
+#include "jetreader/reader/tower_selector.h"
+
 #include "StPicoEvent/StPicoDst.h"
 
 #include <set>
@@ -8,7 +10,7 @@
 
 namespace jetreader {
 
-enum class MultType { REFMULT, REFMULT2, REFMULT3, REFMULT4, GREFMULT };
+enum class MultType { refMult, refMult2, refMult3, refMult4, gRefMult };
 
 class EventSelector {
 public:
@@ -17,7 +19,7 @@ public:
   virtual ~EventSelector() {}
 
   // Primary method to check an event. Returns true if no active selection
-  // critera are failed, returns false otherwise
+  // critera are failed, returns false otherwise. 
   virtual bool select(StPicoDst *dst);
 
   // Select on primary vertex position (vz = direction along the beam pipe,
@@ -37,7 +39,7 @@ public:
   // any form, is a measure of the charged track multiplicity in the event -
   // correlates with centrality)
   void setRefMultRange(unsigned min, unsigned max,
-                       MultType mult = MultType::REFMULT);
+                       MultType mult = MultType::refMult);
 
   // Add trigger IDs - once any trigger ID is added, any event without at least
   // one of the added trigger IDs will be rejected (trigger ID = )
@@ -49,11 +51,6 @@ public:
   // depending on data-taking rates)
   void addBadRuns(std::vector<unsigned> bad_runs);
   void addBadRuns(std::string bad_run_file);
-
-  // selectors for maximum track pT and tower ET in the event. If any track or
-  // tower is found above this threshold, the whole event is rejected
-  void setTrackPtMax(double max, bool use_globals = false);
-  void setTowerEtMax(double max);
 
   // function to deactivate and reset all cuts
   void clear();
@@ -79,8 +76,6 @@ private:
   bool dvz_active_;
   bool vr_active_;
   bool refmult_active_;
-  bool max_pt_active_;
-  bool max_et_active_;
 
   std::set<unsigned> trigger_ids_;
 
@@ -98,10 +93,6 @@ private:
   MultType refmult_type_;
   unsigned refmult_min_;
   unsigned refmult_max_;
-
-  bool use_globals_;
-  double max_pt_;
-  double max_et_;
 };
 
 } // namespace jetreader
