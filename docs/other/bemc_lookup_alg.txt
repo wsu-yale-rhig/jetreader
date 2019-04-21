@@ -1,0 +1,75 @@
+getPhi(SoftId):
+m, e, s;
+getBin(softid, &m, &e, &s);
+phi = getPhi(m, s);
+return phi;
+
+getEta(SoftId):
+m, e, s;
+getBin(softid, &m, &e, &s);
+eta = getEta(m, e);
+return phi;
+
+getBin(softid, &m, &e, &s):
+checkId(softid);
+int array_id = softid - 1;
+m = array_id / mNes + 1;
+int j = array_id - mNes * (m-1);
+s = j/mNEta + 1;
+e = j%mNEta + 1;
+
+checkId(softid):
+softid > 0 && softid <= mNRaw
+    return true;
+else
+    return false;
+
+getPhi(m, s):
+checkModule(m), checkSub(s);
+Int iphi, im;
+Double phi;
+if (m <= mNModule/2) phi = -mPhi[s-1], im = 0, iphi = m-1;
+else phi = mPhi[s-1]; im = 1; iphi = m-mNModule/2 -1
+phi = phiOffset[im] + phiStep[im]*iphi
+while (phi >= PI) phi -= PI*2
+while (phi < -PI) phi += PI*2
+ret phi
+
+getEta(m, e):
+double eta;
+checkModule(m), checkEta(e);
+if (m <= mNModule/2) eta = mEta[e-1];
+else                 eta = -mEta[e-1];
+ret eta
+
+
+CONSTANTS
+mNModule = 120 // subdivisions in phi
+mNSub = 2 // phi divisions in module
+mNEta = 20 //  eta divisions in module
+mNes = mNEta * mNSub = 40 // total towers per module
+mNRaw = mNes * mNModule = 4800 // number of towers
+phiOffset[i=0,1] // offset inside of a module in phi
+mPhiOffset[0] = (75.-3.)/ 180. * PI
+mPhiOffset[1] = (105.+3.)/180. * PI
+phiStep[i=0,1] // phi step between modules
+mPhiStep[0]   = -PI*2 /(mNModule/2)
+mPhiStep[1]   = -mPhiStep[0]
+mEtaMax   = 0.984
+mEtaMin   = 0.0035
+mEtaB[i=0...mNEta] // boundary for tower eta
+mEtaB[i] = 0.05*i
+mEtaB[0] = mEtaMin
+mEtaB[mNEta] = mEtaMax
+mEta[i=0...mNEta-1] // eta position of tower inside module
+mEta[i] = (mEtaB[i] + mEtaB[i+1])/2
+
+// OTHERS
+checkModule(m):
+m > 0 && m <= mNModule
+
+checkSubmodule(s):
+s > 0 && s <= mNSub
+
+checkEta(e):
+e > 0 && e <= mN
