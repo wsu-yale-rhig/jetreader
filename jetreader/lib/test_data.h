@@ -15,7 +15,7 @@ std::string GetTestFile();
 // that only relies on event info
 void TurnOffBranches(jetreader::Reader &r);
 
-// keeps Track and Tower branches on
+// keeps Event, Track and BTowHit branches on, turns the rest off
 void TurnOffMostBranches(jetreader::Reader &r);
 
 } // namespace jetreader
