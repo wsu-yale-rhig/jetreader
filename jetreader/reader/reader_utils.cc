@@ -17,10 +17,15 @@ fastjet::PseudoJet MakePseudoJet(const StPicoTrack &track, TVector3 vertex,
   return j;
 }
 
-fastjet::PseudoJet MakePseudoJet(const StPicoBTowHit &tower, TVector3 vertex,
-                                 unsigned tower_id) {
-  fastjet::PseudoJet j(1, 0, 0, tower.energy());
-  double raw_eta = 0.0;
+fastjet::PseudoJet MakePseudoJet(const StPicoBTowHit &tower, BemcHelper &helper,
+                                 TVector3 vertex, unsigned tower_id) {
+  double raw_eta = helper.towerEta(tower_id);
+  double corrected_eta = helper.vertexCorrectedEta(tower_id, vertex.Z());
+  double phi = helper.towerPhi(tower_id);
+  double et  = tower.energy() / cosh(corrected_eta);
+  double mass = 0.0;
+  fastjet::PseudoJet j;
+  j.reset_PtYPhiM(et, corrected_eta, phi, mass);
   VectorInfo *info = new VectorInfo(tower, tower_id, raw_eta);
   j.set_user_info(info);
   return j;

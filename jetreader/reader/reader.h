@@ -6,6 +6,7 @@
 #include "jetreader/reader/tower_selector.h"
 #include "jetreader/reader/track_selector.h"
 #include "jetreader/reader/vector_info.h"
+#include "jetreader/reader/bemc_helper.h"
 
 #include <string>
 #include <vector>
@@ -89,6 +90,8 @@ private:
   unique_ptr<EventSelector> event_selector_;
   unique_ptr<TrackSelector> track_selector_;
   unique_ptr<TowerSelector> tower_selector_;
+
+  BemcHelper bemc_helper_;
 
   std::vector<fastjet::PseudoJet> pseudojets_;
 };

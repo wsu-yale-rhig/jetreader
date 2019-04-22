@@ -148,9 +148,10 @@ bool Reader::selectTowers() {
   TVector3 vertex = picoDst()->event()->primaryVertex();
   for (unsigned i = 0; i < picoDst()->numberOfBTowHits(); ++i) {
     StPicoBTowHit *tower = picoDst()->btowHit(i);
-    TowerStatus tower_status = tower_selector_->select(tower, i);
+    unsigned tower_id = i + 1;
+    TowerStatus tower_status = tower_selector_->select(tower, tower_id);
     if (tower_status == TowerStatus::acceptTower)
-      pseudojets_.push_back(MakePseudoJet(*tower, vertex, i));
+      pseudojets_.push_back(MakePseudoJet(*tower, bemc_helper_, vertex, tower_id));
     else if (tower_status == TowerStatus::rejectEvent)
       event_status = false;
   }

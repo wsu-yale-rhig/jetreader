@@ -2,6 +2,7 @@
 
 #include "jetreader/reader/reader_utils.h"
 #include "jetreader/reader/vector_info.h"
+#include "jetreader/reader/bemc_helper.h"
 
 #include "fastjet/PseudoJet.hh"
 
@@ -71,18 +72,23 @@ TEST(ReaderUtils, MakePseudoJetFromGlobal) {
 TEST(ReaderUtils, MakePseudoJetFromTower) {
   StPicoBTowHit tow;
 
-  unsigned id = 50;
+  jetreader::BemcHelper helper;
+
+  unsigned id = 1;
   unsigned adc = 20;
   double e = 5.2;
+  double eta = 0.02675;
   TVector3 vertex(0, 0, 0);
 
   tow.setAdc(adc);
   tow.setEnergy(e);
 
-  fastjet::PseudoJet j = jetreader::MakePseudoJet(tow, vertex, id);
+  fastjet::PseudoJet j = jetreader::MakePseudoJet(tow, helper, vertex, id);
 
   EXPECT_NEAR(e, j.E(), 1e-5);
-  EXPECT_NEAR(0, j.user_info<jetreader::VectorInfo>().towerRawEta(), 1e-5);
+  EXPECT_NEAR(e/cosh(eta), j.pt(), 1e-5);
+  EXPECT_NEAR(eta, j.eta(), 1e-5);
+  EXPECT_NEAR(eta, j.user_info<jetreader::VectorInfo>().towerRawEta(), 1e-4);
   EXPECT_EQ(id, j.user_info<jetreader::VectorInfo>().towerId());
   EXPECT_EQ(adc, j.user_info<jetreader::VectorInfo>().towerAdc());
 }
