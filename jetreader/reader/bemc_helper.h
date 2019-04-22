@@ -32,7 +32,7 @@ private:
 
   unsigned modules_;            // total number of module
   unsigned tow_per_module_phi_; // number of towers in module in phi direction
-  unsigned tow_per_module_eta_; // number of towers in module in eta dorection
+  unsigned tow_per_module_eta_; // number of towers in module in eta direction
   unsigned tow_per_module_;     // total number of towers per module
   unsigned towers_;             // total number of towers in detector
 

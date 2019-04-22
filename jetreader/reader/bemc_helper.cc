@@ -74,7 +74,7 @@ double BemcHelper::towerPhi(unsigned tow_id) {
 
 double BemcHelper::vertexCorrectedEta(unsigned tow_id, double vz) {
   double tower_eta = towerEta(tow_id);
-  double tower_theta =2.0 * atan(exp(-tower_eta));
+  double tower_theta = 2.0 * atan(exp(-tower_eta));
   double z = 0.0;
   if (tower_eta != 0.0)
     z = barrel_radius_ / tan(tower_theta);
@@ -88,8 +88,8 @@ void BemcHelper::hardwareLocation(unsigned soft_id, unsigned &module,
                                   unsigned &eta, unsigned &phi) {
 
   if (soft_id <= 0 || soft_id > towers_)
-    JETREADER_THROW("tower index out of bounds: ", soft_id, " greater than ",
-                    towers_);
+    JETREADER_THROW("tower index out of bounds: ", soft_id,
+                    " requested, but tower index range is [1, ", towers_, "]");
 
   int tower_idx = soft_id - 1;
   module = tower_idx / tow_per_module_;
