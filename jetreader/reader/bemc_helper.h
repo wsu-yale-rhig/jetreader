@@ -1,7 +1,6 @@
 #ifndef JETREADER_READER_BEMC_HELPER_H
 #define JETREADER_READER_BEMC_HELPER_H
 
-#include <tuple>
 #include <vector>
 
 namespace jetreader {
