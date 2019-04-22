@@ -4,8 +4,6 @@
 
 #include <cmath>
 
-constexpr double pi = M_PI;
-
 namespace jetreader {
 
 BemcHelper::BemcHelper()
@@ -26,6 +24,7 @@ BemcHelper::BemcHelper()
   for (int i = 0; i < tow_per_module_eta_; ++i)
     eta_center_[i] = (eta_bounds_[i] + eta_bounds_[i + 1]) / 2.0;
 
+  const double pi = M_PI;
   phi_offset_ = {72.0 / 180.0 * pi, 108.0 / 180.0 * pi};
 
   phi_module_step_width_ = {-pi * 2.0 / (modules_ / 2.0),
@@ -64,6 +63,7 @@ double BemcHelper::towerPhi(unsigned tow_id) {
   phi += phi_offset_[detector_side];
   phi += phi_module_step_width_[detector_side] * module_on_side;
 
+  double pi = M_PI;
   while (phi < -1.0 * pi)
     phi += 2.0 * pi;
   while (phi >= pi)
