@@ -15,7 +15,7 @@ set(JR_BINARY_SRCS)
 ## add all subdirectories
 add_subdirectory(lib)
 add_subdirectory(reader)
-add_subdirectory(examples)
+#add_subdirectory(examples)
 add_subdirectory(test)
 
 ## compile libraries
