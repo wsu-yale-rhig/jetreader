@@ -12,7 +12,8 @@ namespace jetreader {
 
 fastjet::PseudoJet MakePseudoJet(const StPicoTrack &track, TVector3 vertex,
                                  bool primary_track = true);
-fastjet::PseudoJet MakePseudoJet(const StPicoBTowHit &tower, unsigned tower_id, double eta, double phi, double eta_corr);
+fastjet::PseudoJet MakePseudoJet(const StPicoBTowHit &tower, unsigned tower_id,
+                                 double eta, double phi, double eta_corr);
 
 } // namespace jetreader
 
