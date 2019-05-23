@@ -119,26 +119,14 @@ bool Reader::makeEvent() {
 bool Reader::selectTracks() {
   bool event_status = true;
   TVector3 vertex = picoDst()->event()->primaryVertex();
-  if (use_primary_tracks_) {
-    for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
-      StPicoTrack *track = picoDst()->track(i);
-      if (track->isPrimary()) {
-        TrackStatus track_status = track_selector_->select(track, vertex);
-        if (track_status == TrackStatus::acceptTrack)
-          pseudojets_.push_back(MakePseudoJet(*track, vertex, true));
-        else if (track_status == TrackStatus::rejectEvent)
-          event_status = false;
-      }
-    }
-  } else {
-    for (unsigned i = 0; i < picoDst()->numberOfTracks(); ++i) {
-      StPicoTrack *track = picoDst()->track(i);
-      TrackStatus track_status = track_selector_->select(track, vertex, false);
-      if (track_status == TrackStatus::acceptTrack)
-        pseudojets_.push_back(MakePseudoJet(*track, vertex, false));
-      else if (track_status == TrackStatus::rejectEvent)
-        event_status = false;
-    }
+  for (int i = 0; i < picoDst()->numberOfTracks(); ++i) {
+    StPicoTrack *track = picoDst()->track(i);
+    TrackStatus track_status =
+        track_selector_->select(track, vertex, use_primary_tracks_);
+    if (track_status == TrackStatus::acceptTrack)
+      pseudojets_.push_back(MakePseudoJet(*track, vertex, use_primary_tracks_));
+    else if (track_status == TrackStatus::rejectEvent)
+      event_status = false;
   }
   return event_status;
 }
@@ -148,14 +136,21 @@ bool Reader::selectTowers() {
   TVector3 vertex = picoDst()->event()->primaryVertex();
   for (unsigned i = 0; i < picoDst()->numberOfBTowHits(); ++i) {
     StPicoBTowHit *tower = picoDst()->btowHit(i);
+
     unsigned tower_id = i + 1;
-    TowerStatus tower_status = tower_selector_->select(tower, tower_id);
+    double eta = bemc_helper_.towerEta(tower_id);
+    double phi = bemc_helper_.towerPhi(tower_id);
+    double corrected_eta =
+        bemc_helper_.vertexCorrectedEta(tower_id, vertex.Z());
+    TowerStatus tower_status =
+        tower_selector_->select(tower, tower_id, corrected_eta);
+
     if (tower_status == TowerStatus::acceptTower)
-      pseudojets_.push_back(MakePseudoJet(*tower, bemc_helper_, vertex, tower_id));
+      pseudojets_.push_back(
+          MakePseudoJet(*tower, tower_id, eta, phi, corrected_eta));
     else if (tower_status == TowerStatus::rejectEvent)
       event_status = false;
   }
   return event_status;
 }
-
 } // namespace jetreader

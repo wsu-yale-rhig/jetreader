@@ -15,12 +15,10 @@ public:
 
   // primary method called by the reader to select a track. Returns true if no
   // active selection criteria are failed, false otherwise. Vertex is the space
-  // point used for calculating DCA. Use the is_primary flag to specify primary
-  // track pT or global track pT for pT selection. Note that if is_primary is
-  // set to true for global tracks, they will always pass the pT selection.
-  // (global track's primary pT is 0)
+  // point used for calculating DCA. Use the primary flag to specify primary
+  // or global track.
   virtual TrackStatus select(StPicoTrack *track, TVector3 vertex,
-                             bool is_primary = true);
+                             bool primary = true);
 
   // select on DCA (DCA = distance of closest approach of the track helix to the
   // primary vertex)

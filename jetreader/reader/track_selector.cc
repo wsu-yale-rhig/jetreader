@@ -7,14 +7,17 @@ namespace jetreader {
 TrackSelector::TrackSelector() { clear(); }
 
 TrackStatus TrackSelector::select(StPicoTrack *track, TVector3 vertex,
-                                  bool is_primary) {
+                                  bool primary) {
+  if (primary && !track->isPrimary())
+    return TrackStatus::rejectTrack;
+
   if ((dca_active_ && !checkDca(track, vertex)) ||
       (nhits_active_ && !checkNHits(track)) ||
       (nhits_frac_active_ && !checkNHitsFrac(track)) ||
       (chi2_active_ && !checkChi2(track)))
     return TrackStatus::rejectTrack;
 
-  if (pt_active_ && !checkPt(track, is_primary)) {
+  if (pt_active_ && !checkPt(track, primary)) {
     if (reject_event_on_pt_failure_)
       return TrackStatus::rejectEvent;
     else

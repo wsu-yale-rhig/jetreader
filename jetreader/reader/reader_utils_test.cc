@@ -74,16 +74,19 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
 
   jetreader::BemcHelper helper;
 
-  unsigned id = 1;
+  unsigned id = 5;
   unsigned adc = 20;
   double e = 5.2;
-  double eta = 0.02675;
   TVector3 vertex(0, 0, 0);
+
+  double eta = helper.towerEta(id);
+  double phi = helper.towerPhi(id);
+  double eta_corr = helper.vertexCorrectedEta(id, vertex.Z());
 
   tow.setAdc(adc);
   tow.setEnergy(e);
 
-  fastjet::PseudoJet j = jetreader::MakePseudoJet(tow, helper, vertex, id);
+  fastjet::PseudoJet j = jetreader::MakePseudoJet(tow, id, eta, phi, eta_corr);
 
   EXPECT_NEAR(e, j.E(), 1e-5);
   EXPECT_NEAR(e/cosh(eta), j.pt(), 1e-5);

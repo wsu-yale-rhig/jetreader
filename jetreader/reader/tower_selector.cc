@@ -1,16 +1,22 @@
 #include "jetreader/reader/tower_selector.h"
 
+#include "jetreader/lib/assert.h"
 #include "jetreader/lib/parse_csv.h"
+
+#include <cmath>
+#include <iostream>
 
 namespace jetreader {
 
 TowerSelector::TowerSelector() { clear(); }
 
-TowerStatus TowerSelector::select(StPicoBTowHit *tower, unsigned id) {
-  if ((bad_towers_active_ && !checkBadTowers(tower, id)))
+TowerStatus TowerSelector::select(StPicoBTowHit *tower, unsigned id,
+                                  double eta) {
+  if ((bad_towers_active_ && !checkBadTowers(tower, id)) ||
+      (et_min_active_ && !checkEtMin(tower, eta)))
     return TowerStatus::rejectTower;
 
-  if ((et_active_ && !checkEt(tower, id))) {
+  if ((et_max_active_ && !checkEtMax(tower, eta))) {
     if (reject_event_on_et_failure_)
       return TowerStatus::rejectEvent;
     else
@@ -44,30 +50,43 @@ void TowerSelector::addBadTowers(std::string filename) {
 void TowerSelector::setEtMax(double max) {
   JETREADER_ASSERT(max > 0, "ET cut must be greater than zero");
   max_et_ = max;
-  et_active_ = true;
+  et_max_active_ = true;
 }
 
 void TowerSelector::rejectEventOnEtFailure(bool flag) {
   reject_event_on_et_failure_ = flag;
 }
 
+void TowerSelector::setEtMin(double min) {
+  JETREADER_ASSERT(min > 0, "ET cut must be greater than zero");
+  min_et_ = min;
+  et_min_active_ = true;
+}
+
 void TowerSelector::clear() {
   bad_towers_active_ = false;
-  et_active_ = false;
+  et_max_active_ = false;
   reject_event_on_et_failure_ = true;
+  et_min_active_ = false;
 
   bad_towers_.clear();
 
   max_et_ = 0.0;
+  min_et_ = 0.0;
 }
 
 bool TowerSelector::checkBadTowers(StPicoBTowHit *tower, unsigned id) {
   return (bad_towers_.find(id) == bad_towers_.end());
 }
 
-bool TowerSelector::checkEt(StPicoBTowHit *tower, unsigned id) {
-  double et = tower->energy();
+bool TowerSelector::checkEtMax(StPicoBTowHit *tower, double eta) {
+  double et = tower->energy() / cosh(eta);
   return et < max_et_;
+}
+
+bool TowerSelector::checkEtMin(StPicoBTowHit *tower, double eta) {
+  double et = tower->energy() / cosh(eta);
+  return et > min_et_;
 }
 
 } // namespace jetreader
