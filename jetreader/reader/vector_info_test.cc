@@ -61,6 +61,7 @@ TEST(VectorInfo, tower_assignment) {
   EXPECT_EQ(id, info.towerId());
   EXPECT_EQ(adc, info.towerAdc());
   EXPECT_NEAR(raw_eta, info.towerRawEta(), 1e-5);
+  EXPECT_NEAR(e, info.towerRawE(), 1e-5);
   EXPECT_EQ(false, info.isPrimary());
   EXPECT_EQ(false, info.isGlobal());
   EXPECT_EQ(true, info.isBemcTower());

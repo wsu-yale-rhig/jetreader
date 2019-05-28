@@ -29,6 +29,7 @@ void VectorInfo::setTower(const StPicoBTowHit &hit, unsigned idx,
   tower_id_ = idx;
   tower_adc_ = hit.adc();
   tower_raw_eta_ = raw_eta;
+  tower_raw_e_ = hit.energy();
   charge_ = 0;
 }
 
@@ -44,5 +45,6 @@ void VectorInfo::clear() {
   tower_id_ = 0;
   tower_adc_ = 0;
   tower_raw_eta_ = 0.0;
+  tower_raw_e_ = 0.0;
 }
 } // namespace jetreader

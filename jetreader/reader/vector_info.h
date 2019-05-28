@@ -39,6 +39,7 @@ public:
   unsigned towerId() const { return tower_id_; }
   unsigned towerAdc() const { return tower_adc_; }
   double towerRawEta() const { return tower_raw_eta_; }
+  double towerRawE() const { return tower_raw_e_; }
 
 private:
   // global info
@@ -57,6 +58,7 @@ private:
   unsigned tower_id_;
   unsigned tower_adc_;
   double tower_raw_eta_;
+  double tower_raw_e_;
 };
 
 } // namespace jetreader
