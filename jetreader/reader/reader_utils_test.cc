@@ -27,16 +27,17 @@ TEST(ReaderUtils, MakePseudoJetFromPrimary) {
   track.setNHitsFit(nhits);
   track.setNHitsPossible(nhits_poss);
 
-  fastjet::PseudoJet j = jetreader::MakePseudoJet(track, vertex, true);
+  auto j = jetreader::MakePseudoJet(track, vertex, true);
+  jetreader::VectorInfo i = j.user_info<jetreader::VectorInfo>();
 
   EXPECT_NEAR(mom.Pt(), j.pt(), 1e-5);
   EXPECT_NEAR(mom.Eta(), j.eta(), 1e-5);
   EXPECT_NEAR(mom.Phi(), j.phi_std(), 1e-5);
   EXPECT_NEAR(0.0, j.m(), 1e-5);
-  EXPECT_EQ(id, j.user_info<jetreader::VectorInfo>().trackId());
-  EXPECT_EQ(nhits, j.user_info<jetreader::VectorInfo>().nhits());
-  EXPECT_EQ(nhits_poss, j.user_info<jetreader::VectorInfo>().nhitsPoss());
-  EXPECT_EQ(dca, j.user_info<jetreader::VectorInfo>().dca());
+  EXPECT_EQ(id, i.trackId());
+  EXPECT_EQ(nhits, i.nhits());
+  EXPECT_EQ(nhits_poss, i.nhitsPoss());
+  EXPECT_EQ(dca, i.dca());
 }
 
 TEST(ReaderUtils, MakePseudoJetFromGlobal) {
@@ -57,16 +58,17 @@ TEST(ReaderUtils, MakePseudoJetFromGlobal) {
   track.setNHitsFit(nhits);
   track.setNHitsPossible(nhits_poss);
 
-  fastjet::PseudoJet j = jetreader::MakePseudoJet(track, vertex, false);
+  auto j = jetreader::MakePseudoJet(track, vertex, false);
+  jetreader::VectorInfo i = j.user_info<jetreader::VectorInfo>();
 
   EXPECT_NEAR(gmom.Pt(), j.pt(), 1e-5);
   EXPECT_NEAR(gmom.Eta(), j.eta(), 1e-5);
   EXPECT_NEAR(gmom.Phi(), j.phi_std(), 1e-5);
   EXPECT_NEAR(0.0, j.m(), 1e-5);
-  EXPECT_EQ(id, j.user_info<jetreader::VectorInfo>().trackId());
-  EXPECT_EQ(nhits, j.user_info<jetreader::VectorInfo>().nhits());
-  EXPECT_EQ(nhits_poss, j.user_info<jetreader::VectorInfo>().nhitsPoss());
-  EXPECT_EQ(dca, j.user_info<jetreader::VectorInfo>().dca());
+  EXPECT_EQ(id, i.trackId());
+  EXPECT_EQ(nhits, i.nhits());
+  EXPECT_EQ(nhits_poss, i.nhitsPoss());
+  EXPECT_EQ(dca, i.dca());
 }
 
 TEST(ReaderUtils, MakePseudoJetFromTower) {
@@ -77,6 +79,7 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   unsigned id = 5;
   unsigned adc = 20;
   double e = 5.2;
+  double e_corr = 5.3;
   TVector3 vertex(0, 0, 0);
 
   double eta = helper.towerEta(id);
@@ -86,12 +89,14 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   tow.setAdc(adc);
   tow.setEnergy(e);
 
-  fastjet::PseudoJet j = jetreader::MakePseudoJet(tow, id, eta, phi, eta_corr);
+  auto j = jetreader::MakePseudoJet(tow, id, eta, phi, eta_corr, e_corr);
+  jetreader::VectorInfo i = j.user_info<jetreader::VectorInfo>();
 
-  EXPECT_NEAR(e, j.E(), 1e-5);
-  EXPECT_NEAR(e/cosh(eta), j.pt(), 1e-5);
+  EXPECT_NEAR(e_corr, j.E(), 1e-5);
+  EXPECT_NEAR(e_corr/cosh(eta), j.pt(), 1e-5);
   EXPECT_NEAR(eta, j.eta(), 1e-5);
-  EXPECT_NEAR(eta, j.user_info<jetreader::VectorInfo>().towerRawEta(), 1e-4);
-  EXPECT_EQ(id, j.user_info<jetreader::VectorInfo>().towerId());
-  EXPECT_EQ(adc, j.user_info<jetreader::VectorInfo>().towerAdc());
+  EXPECT_NEAR(eta, i.towerRawEta(), 1e-4);
+  EXPECT_NEAR(e, i.towerRawE(), 1e-4);
+  EXPECT_EQ(id, i.towerId());
+  EXPECT_EQ(adc, i.towerAdc());
 }
