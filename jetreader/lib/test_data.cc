@@ -28,11 +28,11 @@ std::string GetTestFile() {
   if (host.find("warrior") != fail || host.find("rhi1") != fail ||
       host.find("rhi2") != fail || host.find("rhi3") != fail ||
       host.find("rhi4") != fail || host.find("wsu") != fail)
-    filepath = "/nfs/rhi/STAR/Data/P18ih/AuAu_200_production_low_2014/picos/"
-               "pico.picoDst.root";
+    filepath = "/nfs/rhi/STAR/Data/jetreader_test_pico/"
+               "jetreader_p18ih_auau_2014_test.picoDst.root";
   else if (host.find("gauss") != fail)
     filepath = "/Users/nick/physics/data/pico_test/"
-               "pico.picoDst.root";
+               "jetreader_p18ih_auau_2014_test.picoDst.root";
   else
     JETREADER_THROW("Could not identify hostname: no input file found");
 
