@@ -2,12 +2,13 @@
 #define JETREADER_READER_READER_H
 
 #include "jetreader/lib/memory.h"
+#include "jetreader/reader/bemc_helper.h"
 #include "jetreader/reader/event_selector.h"
 #include "jetreader/reader/tower_selector.h"
 #include "jetreader/reader/track_selector.h"
 #include "jetreader/reader/vector_info.h"
-#include "jetreader/reader/bemc_helper.h"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -49,6 +50,15 @@ public:
   void usePrimaryTracks() { use_primary_tracks_ = true; }
   void useGlobalTracks() { use_primary_tracks_ = false; }
 
+  // turn on hadronic correction or MIP correction for towers. Fraction is the
+  // percent of a track's pT to subtract from the corresponding tower ET in
+  // hadronic correction. Only one correction scheme can be active at one time
+  // - by default, 100% hadronic correction is on
+  void useMIPCorrection(bool flag);
+  void useHadronicCorrection(bool flag, double fraction = 1.0);
+  bool MIPCorrection() const { return use_mip_corr_; }
+  bool hadronicCorrection() const { return use_had_corr_; }
+
   // processes the event and returns a list of selected tracks and towers, which
   // have been converted into PseudoJets
   std::vector<fastjet::PseudoJet> &pseudojets();
@@ -83,9 +93,18 @@ private:
   bool selectTracks();
   bool selectTowers();
 
+  // tower E correction schemes - either MIP or hadronic correction
+  double towerMIPCorrection(unsigned tow_idx, double tow_eta);
+  double towerHadronicCorrection(unsigned tow_idx);
+
   int64_t index_;
 
   bool use_primary_tracks_;
+
+  bool use_had_corr_;
+  double had_corr_fraction_;
+  std::vector<std::vector<unsigned>> had_corr_map_;
+  bool use_mip_corr_;
 
   unique_ptr<EventSelector> event_selector_;
   unique_ptr<TrackSelector> track_selector_;
