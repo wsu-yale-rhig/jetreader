@@ -4,6 +4,7 @@
 #include <random>
 #include <unordered_map>
 #include <vector>
+#include <iostream>
 
 // testing the relative efficiency of using a vector or a map for storing
 // information. Does not estimate the size of the structure, which would also be
@@ -76,10 +77,12 @@ static void BM_HadCorrVector(benchmark::State &state) {
 
   // RNG parameters needed
   std::uniform_int_distribution<int> nmatch_dist(0, 1500);
-  std::uniform_int_distribution<int> tow_dist(0, 4800);
+  std::uniform_int_distribution<int> tow_dist(0, 4799);
+  std::uniform_real_distribution<double> prob(0, 1.0);
   std::random_device r;
   std::mt19937 gen(r());
   size_t total = 0;
+  
   for (auto _ : state) {
     // clear the container
     for (auto &c : tower_map)
@@ -93,8 +96,6 @@ static void BM_HadCorrVector(benchmark::State &state) {
       unsigned towid = tow_dist(gen);
       tower_map[towid].push_back(i);
     }
-
-    // loop over all containers
     for (auto &c : tower_map) {
       for (auto &t : c)
         total += t;
