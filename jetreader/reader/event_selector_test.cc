@@ -180,7 +180,7 @@ TEST(EventSelector, Trigger) {
 }
 
 TEST(EventSelector, BadRuns) {
-  std::vector<unsigned> run_ids{15121012};
+  std::vector<unsigned> run_ids{15095020};
 
   TestSelector selector;
   selector.addBadRuns(run_ids);
