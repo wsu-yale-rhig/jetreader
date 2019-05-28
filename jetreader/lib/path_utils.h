@@ -8,10 +8,12 @@
 
 namespace jetreader {
 
-// strips the path and returns the file name
+// strips the path and returns the file name - requires Linux/Mac formatting
+// using forward slashes
 std::string GetFileName(const std::string &path);
 
-// strips the file name and returns the path
+// strips the file name and returns the path - requires Linux/Mac formatting
+// using forward slashes
 std::string GetPath(const std::string &path);
 
 } // namespace jetreader

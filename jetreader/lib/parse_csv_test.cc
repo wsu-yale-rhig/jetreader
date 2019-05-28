@@ -31,7 +31,6 @@ TEST(ParseCsv, SingleTest) {
   // compare the results
   EXPECT_EQ(result, expected_result);
 
-
   // delete test file
   remove(FILE_NAME.c_str());
 }

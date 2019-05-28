@@ -12,6 +12,8 @@
 
 namespace jetreader {
 
+// Parses a CSV file into a ragged 2D vector - each row can have a different
+// length. Lines starting with a # are considered comments and not parsed.
 template <typename T>
 std::vector<std::vector<T>> ParseCsv(std::string filename) {
   std::vector<std::vector<T>> ret;

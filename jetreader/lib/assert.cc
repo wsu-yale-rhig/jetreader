@@ -10,7 +10,8 @@
 namespace jetreader {
 
 AssertionFailure::AssertionFailure(const char *file, int line,
-                                   const char *failure, const std::string &message)
+                                   const char *failure,
+                                   const std::string &message)
     : msg_stack_({MakeString("[assertion failure: ",
                              GetFileName(std::string(file)), "::", line, "] "),
                   std::string(failure), " ", message}),

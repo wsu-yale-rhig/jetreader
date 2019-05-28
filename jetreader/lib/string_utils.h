@@ -40,7 +40,6 @@ template <> std::string MakeString(const std::string &s);
 
 std::string MakeString(const char *chr);
 
-
 // removes all instances of predicate P in string
 template <typename T, typename P> T RemoveIf(T beg, T end, P pred) {
   T dest = beg;
@@ -50,7 +49,7 @@ template <typename T, typename P> T RemoveIf(T beg, T end, P pred) {
   return dest;
 }
 
-// parses a string to 
+// parses a string to
 template <typename T, class Container = std::vector<T>>
 Container ParseArgString(std::string str) {
   Container ret;
