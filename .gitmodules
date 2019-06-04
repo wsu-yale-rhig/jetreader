@@ -7,3 +7,6 @@
 [submodule "third_party/StPicoEvent"]
 	path = third_party/StPicoEvent
 	url = git@github.com:nickelsey/StPicoEvent.git
+[submodule "third_party/yaml-cpp"]
+	path = third_party/yaml-cpp
+	url = https://github.com/jbeder/yaml-cpp.git

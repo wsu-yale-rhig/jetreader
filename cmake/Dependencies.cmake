@@ -19,6 +19,21 @@ add_subdirectory(third_party/StPicoEvent)
 list(APPEND JR_DEPENDENCY_LIBS ${PICO_LIBS})
 JR_include_directories(${PICO_INCLUDE_DIRS})
 
+## yaml-cpp 
+set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
+set(BUILD_SHARED_LIBS OFF)
+set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "do not built yaml-cpp tests")
+set(YAML_CPP_INSTALL OFF CACHE BOOL "do not install yaml-cpp")
+
+## add the yaml library
+add_subdirectory(third_party/yaml-cpp)
+list(APPEND JR_DEPENDENCY_LIBS yaml-cpp)
+JR_include_directories(${YAML_CPP_SOURCE_DIR}/include)
+message(STATUS ${YAML_CPP_SOURCE_DIR}/include)
+
+## reset the correct value for the jetreader cmake project
+set(BUILD_SHARED_LIBS ${TEMP_BUILD_SHARED_LIBS})
+
 ## testing is done via gtest, gmock (currently not used)
 ## and google benchmark. They are compiled as static libraries
 ## and embedded in the test binaries
