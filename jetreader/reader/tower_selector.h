@@ -52,8 +52,9 @@ protected:
 private:
   bool bad_towers_active_;
   bool et_max_active_;
-  bool reject_event_on_et_failure_;
   bool et_min_active_;
+
+  bool reject_event_on_et_failure_;
 
   std::set<unsigned> bad_towers_;
   std::set<std::string> bad_tower_files_;

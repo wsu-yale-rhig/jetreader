@@ -68,8 +68,9 @@ void TowerSelector::setEtMin(double min) {
 void TowerSelector::clear() {
   bad_towers_active_ = false;
   et_max_active_ = false;
-  reject_event_on_et_failure_ = true;
   et_min_active_ = false;
+
+  reject_event_on_et_failure_ = true;
 
   bad_towers_.clear();
   bad_tower_files_.clear();

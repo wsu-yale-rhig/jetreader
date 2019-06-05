@@ -61,6 +61,7 @@ private:
   bool nhits_frac_active_;
   bool chi2_active_;
   bool pt_active_;
+  
   bool reject_event_on_pt_failure_;
 
   double dca_max_;
