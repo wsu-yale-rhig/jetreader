@@ -64,8 +64,6 @@ protected:
   bool checkRefMult(StPicoDst *dst);
   bool checkTriggerId(StPicoDst *dst);
   bool checkRunId(StPicoDst *dst);
-  bool checkMaxPt(StPicoDst *dst);
-  bool checkMaxEt(StPicoDst *dst);
 
 private:
   bool trigger_ids_active_;
