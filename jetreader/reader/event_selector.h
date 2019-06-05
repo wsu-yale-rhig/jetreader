@@ -78,6 +78,7 @@ private:
   std::set<unsigned> trigger_ids_;
 
   std::set<unsigned> bad_run_ids_;
+  std::set<std::string> bad_run_id_files_;
 
   double vx_min_;
   double vx_max_;

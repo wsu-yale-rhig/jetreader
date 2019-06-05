@@ -31,12 +31,12 @@ public:
   // add a max ET cut for towers
   void setEtMax(double max);
 
-  // if this flag is turned on, if any tower fails the ET cut then the entire
-  // event is rejected. This is turned on by default
-  void rejectEventOnEtFailure(bool flag = true);
-
   // sets a minimum ET cut for towers
   void setEtMin(double min);
+
+  // if this flag is turned on, if any tower fails the maximum ET cut then the
+  // entire event is rejected. This is turned on by default
+  void rejectEventOnEtFailure(bool flag = true);
 
   // resets all selection criteria to default (off)
   void clear();
@@ -56,6 +56,7 @@ private:
   bool et_min_active_;
 
   std::set<unsigned> bad_towers_;
+  std::set<std::string> bad_tower_files_;
 
   double max_et_;
   double min_et_;

@@ -41,8 +41,8 @@ public:
   // set a maximum pT cut for tracks.
   void setPtMax(double max);
 
-  // if this flag is turned on, if any track fails the pT cut then the entire
-  // event is rejected. This is turned on by default
+  // if this flag is turned on, if any track fails the maximum pT cut then the
+  // entire event is rejected. This is turned on by default
   void rejectEventOnPtFailure(bool flag = true);
 
   // clears all selection criteria back to default (no cut)

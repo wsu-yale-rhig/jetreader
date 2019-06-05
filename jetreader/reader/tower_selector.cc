@@ -45,6 +45,8 @@ void TowerSelector::addBadTowers(std::string filename) {
   }
   if (bad_towers_.size() > 0)
     bad_towers_active_ = true;
+
+  bad_tower_files_.insert(filename);
 }
 
 void TowerSelector::setEtMax(double max) {
@@ -70,6 +72,7 @@ void TowerSelector::clear() {
   et_min_active_ = false;
 
   bad_towers_.clear();
+  bad_tower_files_.clear();
 
   max_et_ = 0.0;
   min_et_ = 0.0;

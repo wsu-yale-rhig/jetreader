@@ -85,6 +85,8 @@ void EventSelector::addBadRuns(std::string bad_run_file) {
   }
   if (bad_run_ids_.size() > 0)
     bad_run_ids_active_ = true;
+
+  bad_run_id_files_.insert(bad_run_file);
 }
 
 void EventSelector::clear() {
@@ -99,6 +101,7 @@ void EventSelector::clear() {
 
   trigger_ids_.clear();
   bad_run_ids_.clear();
+  bad_run_id_files_.clear();
 
   vx_min_ = 0.0;
   vx_max_ = 0.0;
