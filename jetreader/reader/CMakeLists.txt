@@ -25,7 +25,7 @@ list(REMOVE_ITEM JR_SRCS ${JR_BENCH_SRCS})
 endif(JR_BENCH_SRCS)
 
 ## install headers
-install(FILES ${JR_HDRS} DESTINATION include/jetreader/lib)
+install(FILES ${JR_HDRS} DESTINATION include/jetreader/reader)
 
 ## add subdirectories
 ## none
