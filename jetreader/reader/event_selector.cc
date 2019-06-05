@@ -69,6 +69,11 @@ void EventSelector::addTriggerIds(std::string id_string) {
   auto result = GetTriggerIDs(id_string);
   for (auto &entry : result)
     addTriggerId(entry);
+
+  if (trigger_ids_.size() > 0)
+    trigger_ids_active_ = true;
+
+  trigger_id_strings_.insert(id_string);
 }
 
 void EventSelector::addBadRuns(std::vector<unsigned> bad_runs) {

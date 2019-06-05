@@ -5,6 +5,8 @@
 
 namespace jetreader {
 
+class TrackSelectorConfigHelper;
+
 enum class TrackStatus { rejectEvent, rejectTrack, acceptTrack };
 
 class TrackSelector {
@@ -41,6 +43,9 @@ public:
   // set a maximum pT cut for tracks.
   void setPtMax(double max);
 
+  // set a minimum pT cut for tracks.
+  void setPtMin(double min);
+
   // if this flag is turned on, if any track fails the maximum pT cut then the
   // entire event is rejected. This is turned on by default
   void rejectEventOnPtFailure(bool flag = true);
@@ -53,15 +58,17 @@ protected:
   bool checkNHits(StPicoTrack *track);
   bool checkNHitsFrac(StPicoTrack *track);
   bool checkChi2(StPicoTrack *track);
-  bool checkPt(StPicoTrack *track, bool is_primary);
+  bool checkPtMax(StPicoTrack *track, bool is_primary);
+  bool checkPtMin(StPicoTrack *track, bool is_primary);
 
 private:
   bool dca_active_;
   bool nhits_active_;
   bool nhits_frac_active_;
   bool chi2_active_;
-  bool pt_active_;
-  
+  bool pt_max_active_;
+  bool pt_min_active_;
+
   bool reject_event_on_pt_failure_;
 
   double dca_max_;
@@ -69,6 +76,10 @@ private:
   double nhits_frac_min_;
   double chi2_max_;
   double pt_max_;
+  double pt_min_;
+
+public:
+  friend class TrackSelectorConfigHelper;
 };
 
 } // namespace jetreader

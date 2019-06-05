@@ -8,6 +8,8 @@
 
 namespace jetreader {
 
+class TowerSelectorConfigHelper;
+
 enum class TowerStatus { rejectEvent, rejectTower, acceptTower };
 
 class TowerSelector {
@@ -59,8 +61,11 @@ private:
   std::set<unsigned> bad_towers_;
   std::set<std::string> bad_tower_files_;
 
-  double max_et_;
-  double min_et_;
+  double et_max_;
+  double et_min_;
+
+public:
+  friend class TowerSelectorConfigHelper;
 };
 
 } // namespace jetreader

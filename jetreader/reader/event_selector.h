@@ -10,6 +10,8 @@
 
 namespace jetreader {
 
+class EventSelectorConfigHelper;
+
 enum class MultType { refMult, refMult2, refMult3, refMult4, gRefMult };
 
 class EventSelector {
@@ -19,7 +21,7 @@ public:
   virtual ~EventSelector() {}
 
   // Primary method to check an event. Returns true if no active selection
-  // critera are failed, returns false otherwise. 
+  // critera are failed, returns false otherwise.
   virtual bool select(StPicoDst *dst);
 
   // Select on primary vertex position (vz = direction along the beam pipe,
@@ -76,6 +78,7 @@ private:
   bool refmult_active_;
 
   std::set<unsigned> trigger_ids_;
+  std::set<std::string> trigger_id_strings_;
 
   std::set<unsigned> bad_run_ids_;
   std::set<std::string> bad_run_id_files_;
@@ -92,6 +95,9 @@ private:
   MultType refmult_type_;
   unsigned refmult_min_;
   unsigned refmult_max_;
+
+public:
+  friend class EventSelectorConfigHelper;
 };
 
 } // namespace jetreader

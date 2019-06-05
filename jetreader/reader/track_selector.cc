@@ -14,10 +14,11 @@ TrackStatus TrackSelector::select(StPicoTrack *track, TVector3 vertex,
   if ((dca_active_ && !checkDca(track, vertex)) ||
       (nhits_active_ && !checkNHits(track)) ||
       (nhits_frac_active_ && !checkNHitsFrac(track)) ||
-      (chi2_active_ && !checkChi2(track)))
+      (chi2_active_ && !checkChi2(track)) ||
+      (pt_min_active_ && !checkPtMin(track, primary)))
     return TrackStatus::rejectTrack;
 
-  if (pt_active_ && !checkPt(track, primary)) {
+  if (pt_max_active_ && !checkPtMax(track, primary)) {
     if (reject_event_on_pt_failure_)
       return TrackStatus::rejectEvent;
     else
@@ -55,7 +56,13 @@ void TrackSelector::setChi2Max(double max) {
 void TrackSelector::setPtMax(double max) {
   JETREADER_ASSERT(max > 0, "pT cut must be greater than zero");
   pt_max_ = max;
-  pt_active_ = true;
+  pt_max_active_ = true;
+}
+
+void TrackSelector::setPtMin(double min) {
+  JETREADER_ASSERT(min > 0, "pT cut must be greater than zero");
+  pt_min_ = min;
+  pt_min_active_ = true;
 }
 
 void TrackSelector::rejectEventOnPtFailure(bool flag) {
@@ -67,7 +74,8 @@ void TrackSelector::clear() {
   nhits_active_ = false;
   nhits_frac_active_ = false;
   chi2_active_ = false;
-  pt_active_ = false;
+  pt_max_active_ = false;
+  pt_min_active_ = false;
   
   reject_event_on_pt_failure_ = true;
 
@@ -76,6 +84,7 @@ void TrackSelector::clear() {
   nhits_frac_min_ = 0.0;
   chi2_max_ = 0.0;
   pt_max_ = 0.0;
+  pt_min_ = 0.0;
 }
 
 bool TrackSelector::checkDca(StPicoTrack *track, TVector3 vertex) {
@@ -97,13 +106,22 @@ bool TrackSelector::checkChi2(StPicoTrack *track) {
   return chi2 < chi2_max_;
 }
 
-bool TrackSelector::checkPt(StPicoTrack *track, bool is_primary) {
+bool TrackSelector::checkPtMax(StPicoTrack *track, bool is_primary) {
   double pt = 0.0;
   if (is_primary)
     pt = track->pPt();
   else
     pt = track->gPt();
   return pt < pt_max_;
+}
+
+bool TrackSelector::checkPtMin(StPicoTrack *track, bool is_primary) {
+  double pt = 0.0;
+  if (is_primary)
+    pt = track->pPt();
+  else
+    pt = track->gPt();
+  return pt > pt_min_;
 }
 
 } // namespace jetreader

@@ -51,7 +51,7 @@ void TowerSelector::addBadTowers(std::string filename) {
 
 void TowerSelector::setEtMax(double max) {
   JETREADER_ASSERT(max > 0, "ET cut must be greater than zero");
-  max_et_ = max;
+  et_max_ = max;
   et_max_active_ = true;
 }
 
@@ -61,7 +61,7 @@ void TowerSelector::rejectEventOnEtFailure(bool flag) {
 
 void TowerSelector::setEtMin(double min) {
   JETREADER_ASSERT(min > 0, "ET cut must be greater than zero");
-  min_et_ = min;
+  et_min_ = min;
   et_min_active_ = true;
 }
 
@@ -75,8 +75,8 @@ void TowerSelector::clear() {
   bad_towers_.clear();
   bad_tower_files_.clear();
 
-  max_et_ = 0.0;
-  min_et_ = 0.0;
+  et_max_ = 0.0;
+  et_min_ = 0.0;
 }
 
 bool TowerSelector::checkBadTowers(StPicoBTowHit *tower, unsigned id) {
@@ -85,12 +85,12 @@ bool TowerSelector::checkBadTowers(StPicoBTowHit *tower, unsigned id) {
 
 bool TowerSelector::checkEtMax(StPicoBTowHit *tower, double eta) {
   double et = tower->energy() / cosh(eta);
-  return et < max_et_;
+  return et < et_max_;
 }
 
 bool TowerSelector::checkEtMin(StPicoBTowHit *tower, double eta) {
   double et = tower->energy() / cosh(eta);
-  return et > min_et_;
+  return et > et_min_;
 }
 
 } // namespace jetreader

@@ -16,8 +16,11 @@ public:
     return TrackSelector::checkNHitsFrac(track);
   }
   bool checkChi2(StPicoTrack *track) { return TrackSelector::checkChi2(track); }
-  bool checkPt(StPicoTrack *track, bool is_primary = true) {
-    return TrackSelector::checkPt(track, is_primary);
+  bool checkPtMax(StPicoTrack *track, bool is_primary = true) {
+    return TrackSelector::checkPtMax(track, is_primary);
+  }
+  bool checkPtMin(StPicoTrack *track, bool is_primary = true) {
+    return TrackSelector::checkPtMin(track, is_primary);
   }
 };
 
@@ -151,8 +154,8 @@ TEST(TrackSelector, PtMax) {
   good_track.setPrimaryMomentum(5.0, 0, 0);
   bad_track.setPrimaryMomentum(15.0, 0, 0);
 
-  EXPECT_EQ(true, selector.checkPt(&good_track, true));
-  EXPECT_EQ(false, selector.checkPt(&bad_track, true));
+  EXPECT_EQ(true, selector.checkPtMax(&good_track, true));
+  EXPECT_EQ(false, selector.checkPtMax(&bad_track, true));
 
   EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
             selector.select(&good_track, vertex));
@@ -166,5 +169,35 @@ TEST(TrackSelector, PtMax) {
 
   StPicoTrack global_track;
   global_track.setGlobalMomentum(20.0, 0, 0);
-  EXPECT_EQ(true, selector.checkPt(&global_track));
+  EXPECT_EQ(true, selector.checkPtMax(&global_track));
+}
+
+TEST(TrackSelector, PtMin) {
+
+  TestSelector selector;
+  selector.setPtMin(10);
+
+  StPicoTrack good_track;
+  StPicoTrack bad_track;
+  TVector3 vertex(0, 0, 0);
+
+  good_track.setPrimaryMomentum(15.0, 0, 0);
+  bad_track.setPrimaryMomentum(5.0, 0, 0);
+
+  EXPECT_EQ(true, selector.checkPtMin(&good_track, true));
+  EXPECT_EQ(false, selector.checkPtMin(&bad_track, true));
+
+  EXPECT_EQ(jetreader::TrackStatus::acceptTrack,
+            selector.select(&good_track, vertex));
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
+
+  selector.rejectEventOnPtFailure(false);
+
+  EXPECT_EQ(jetreader::TrackStatus::rejectTrack,
+            selector.select(&bad_track, vertex));
+
+  StPicoTrack global_track;
+  global_track.setGlobalMomentum(20.0, 0, 0);
+  EXPECT_EQ(false, selector.checkPtMin(&global_track));
 }
