@@ -3,6 +3,7 @@
 
 #include "jetreader/lib/memory.h"
 #include "jetreader/reader/bemc_helper.h"
+#include "jetreader/reader/config/config_manager.h"
 #include "jetreader/reader/event_selector.h"
 #include "jetreader/reader/tower_selector.h"
 #include "jetreader/reader/track_selector.h"
@@ -29,6 +30,12 @@ public:
   Reader(const std::string &input_file);
 
   ~Reader();
+
+  // Loads a YAML config file - fill in details later
+  void LoadConfig(const std::string &yaml_filename);
+
+  // dumps config to file in YAML format - fill in details later
+  bool WriteConfig(const std::string &yaml_filename);
 
   // Reads until the next event that satisfies event selection criteria is
   // found, or the end of the chain is reached. Returns false when it reaches
@@ -106,6 +113,8 @@ private:
   std::vector<std::vector<unsigned>> had_corr_map_;
   bool use_mip_corr_;
 
+  ConfigManager manager_;
+
   unique_ptr<EventSelector> event_selector_;
   unique_ptr<TrackSelector> track_selector_;
   unique_ptr<TowerSelector> tower_selector_;
@@ -113,6 +122,9 @@ private:
   BemcHelper bemc_helper_;
 
   std::vector<fastjet::PseudoJet> pseudojets_;
+
+public:
+  friend class ReaderConfigHelper;
 };
 
 } // namespace jetreader

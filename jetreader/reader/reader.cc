@@ -11,13 +11,20 @@ namespace jetreader {
 Reader::Reader(const std::string &input_file)
     : index_(-1), use_primary_tracks_(true),
       StPicoDstReader(input_file.c_str()), use_had_corr_(true),
-      had_corr_fraction_(1.0), had_corr_map_(4800), use_mip_corr_(false) {
+      had_corr_fraction_(1.0), had_corr_map_(4800), use_mip_corr_(false),
+      manager_(*this) {
   event_selector_ = make_unique<EventSelector>();
   track_selector_ = make_unique<TrackSelector>();
   tower_selector_ = make_unique<TowerSelector>();
 }
 
 Reader::~Reader() {}
+
+void Reader::LoadConfig(const std::string &yaml_filename) {
+  
+}
+
+bool Reader::WriteConfig(const std::string &yaml_filename) { return true; }
 
 bool Reader::next() {
   // clear last event
