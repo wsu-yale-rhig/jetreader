@@ -5,12 +5,14 @@
 
 namespace jetreader {
 
-class TrackSelectorConfigHelper;
-
 enum class TrackStatus { rejectEvent, rejectTrack, acceptTrack };
+
+class TrackSelectorConfigHelper;
 
 class TrackSelector {
 public:
+  friend class TrackSelectorConfigHelper;
+
   TrackSelector();
 
   virtual ~TrackSelector() {}
@@ -77,9 +79,6 @@ private:
   double chi2_max_;
   double pt_max_;
   double pt_min_;
-
-public:
-  friend class TrackSelectorConfigHelper;
 };
 
 } // namespace jetreader

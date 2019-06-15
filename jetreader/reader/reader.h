@@ -9,7 +9,6 @@
 #include "jetreader/reader/track_selector.h"
 #include "jetreader/reader/vector_info.h"
 
-#include <map>
 #include <string>
 #include <vector>
 
@@ -22,8 +21,12 @@ namespace jetreader {
 // returned by readEvent(idx)
 enum class EventStatus { ioFailure, acceptEvent, rejectEvent };
 
+class ReaderConfigHelper;
+
 class Reader : public StPicoDstReader {
 public:
+  friend class ReaderConfigHelper;
+
   // Reader initialization requires an input file name, and an optional
   // configuration file. The input file can be either a ROOT file containing a
   // PicoDst tree, or a file containing a list of picoDst files.
@@ -32,10 +35,10 @@ public:
   ~Reader();
 
   // Loads a YAML config file - fill in details later
-  void LoadConfig(const std::string &yaml_filename);
+  void loadConfig(const std::string &yaml_filename);
 
   // dumps config to file in YAML format - fill in details later
-  bool WriteConfig(const std::string &yaml_filename);
+  void writeConfig(const std::string &yaml_filename);
 
   // Reads until the next event that satisfies event selection criteria is
   // found, or the end of the chain is reached. Returns false when it reaches
@@ -56,6 +59,8 @@ public:
   // Switch between primary and global tracks. Primary tracks are the default
   void usePrimaryTracks() { use_primary_tracks_ = true; }
   void useGlobalTracks() { use_primary_tracks_ = false; }
+  bool primaryTracks() { return use_primary_tracks_; }
+  bool globalTracks() { return !use_primary_tracks_; }
 
   // turn on hadronic correction or MIP correction for towers. Fraction is the
   // percent of a track's pT to subtract from the corresponding tower ET in
@@ -65,6 +70,7 @@ public:
   void useHadronicCorrection(bool flag, double fraction = 1.0);
   bool MIPCorrection() const { return use_mip_corr_; }
   bool hadronicCorrection() const { return use_had_corr_; }
+  double hadronicCorrectionFraction() const { return had_corr_fraction_; }
 
   // processes the event and returns a list of selected tracks and towers, which
   // have been converted into PseudoJets
@@ -122,9 +128,6 @@ private:
   BemcHelper bemc_helper_;
 
   std::vector<fastjet::PseudoJet> pseudojets_;
-
-public:
-  friend class ReaderConfigHelper;
 };
 
 } // namespace jetreader

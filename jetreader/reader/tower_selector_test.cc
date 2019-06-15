@@ -36,8 +36,6 @@ TEST(TowerSelector, CsvParsing) {
   test_file << "47";
   test_file.close();
 
-  // now parse the file
-  auto towers = jetreader::ParseCsv<int>(FILE_NAME);
 
   // now, read in the towers into the selector
   TestSelector selector;

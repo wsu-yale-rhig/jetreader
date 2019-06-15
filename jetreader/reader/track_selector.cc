@@ -76,7 +76,7 @@ void TrackSelector::clear() {
   chi2_active_ = false;
   pt_max_active_ = false;
   pt_min_active_ = false;
-  
+
   reject_event_on_pt_failure_ = true;
 
   dca_max_ = 0.0;

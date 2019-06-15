@@ -1,25 +1,28 @@
 #include "jetreader/reader/config/track_selector_config_helper.h"
+#include "jetreader/reader/track_selector.h"
 
 #include <iostream>
 
 namespace jetreader {
 
+TrackSelectorConfigHelper::TrackSelectorConfigHelper(){};
+
 void TrackSelectorConfigHelper::loadConfig(TrackSelector &sel,
                                            YAML::Node &node) {
   for (auto &&entry : node) {
-    if (entry.first.as<std::string>() == dca_key_) {
+    if (entry.first.as<std::string>() == maxDcaKey()) {
       sel.setDcaMax(entry.second.as<double>());
-    } else if (entry.first.as<std::string>() == nhits_min_key_) {
+    } else if (entry.first.as<std::string>() == minNhitsKey()) {
       sel.setNHitsMin(entry.second.as<unsigned>());
-    } else if (entry.first.as<std::string>() == nhits_frac_min_key_) {
+    } else if (entry.first.as<std::string>() == minNhitsFracKey()) {
       sel.setNHitsFracMin(entry.second.as<double>());
-    } else if (entry.first.as<std::string>() == min_pt_key_) {
+    } else if (entry.first.as<std::string>() == minPtKey()) {
       sel.setPtMin(entry.second.as<double>());
-    } else if (entry.first.as<std::string>() == max_pt_key_) {
+    } else if (entry.first.as<std::string>() == maxPtKey()) {
       sel.setPtMax(entry.second.as<double>());
-    } else if (entry.first.as<std::string>() == chi2_max_key_) {
+    } else if (entry.first.as<std::string>() == maxChi2Key()) {
       sel.setChi2Max(entry.second.as<double>());
-    } else if (entry.first.as<std::string>() == fail_event_max_pt_key_) {
+    } else if (entry.first.as<std::string>() == maxPtFailEventKey()) {
       sel.rejectEventOnPtFailure(entry.second.as<bool>());
     } else
       std::cerr << "unknown key in TrackSelectorConfig: "
@@ -29,18 +32,18 @@ void TrackSelectorConfigHelper::loadConfig(TrackSelector &sel,
 YAML::Node TrackSelectorConfigHelper::readConfig(TrackSelector &sel) {
   YAML::Node config;
   if (sel.dca_active_)
-    config[dca_key_] = sel.dca_max_;
+    config[maxDcaKey()] = sel.dca_max_;
   if (sel.nhits_active_)
-    config[nhits_min_key_] = sel.nhits_min_;
+    config[minNhitsKey()] = sel.nhits_min_;
   if (sel.nhits_frac_active_)
-    config[nhits_frac_min_key_] = sel.nhits_frac_min_;
+    config[minNhitsFracKey()] = sel.nhits_frac_min_;
   if (sel.pt_min_active_)
-    config[min_pt_key_] = sel.pt_min_;
+    config[minPtKey()] = sel.pt_min_;
   if (sel.pt_max_active_)
-    config[max_pt_key_] = sel.pt_max_;
+    config[maxPtKey()] = sel.pt_max_;
   if (sel.chi2_active_)
-    config[chi2_max_key_] = sel.chi2_max_;
-  config[fail_event_max_pt_key_] = sel.reject_event_on_pt_failure_;
+    config[maxPtKey()] = sel.chi2_max_;
+  config[maxPtFailEventKey()] = sel.reject_event_on_pt_failure_;
 
   return config;
 }

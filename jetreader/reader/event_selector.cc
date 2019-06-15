@@ -10,16 +10,17 @@ namespace jetreader {
 
 EventSelector::EventSelector() { clear(); }
 
-bool EventSelector::select(StPicoDst *dst) {
-  if ((vx_active_ && !checkVx(dst)) || (vy_active_ && !checkVy(dst)) ||
-      (vz_active_ && !checkVz(dst)) || (dvz_active_ && !checkdVz(dst)) ||
-      (vr_active_ && !checkVr(dst)) ||
-      (refmult_active_ && !checkRefMult(dst)) ||
-      (trigger_ids_active_ && !checkTriggerId(dst)) ||
-      (bad_run_ids_active_ && !checkRunId(dst)))
+bool EventSelector::select(StPicoEvent *event) {
+  if ((vx_active_ && !checkVx(event)) || (vy_active_ && !checkVy(event)) ||
+      (vz_active_ && !checkVz(event)) || (dvz_active_ && !checkdVz(event)) ||
+      (vr_active_ && !checkVr(event)) ||
+      (refmult_active_ && !checkRefMult(event)) ||
+      (trigger_ids_active_ && !checkTriggerId(event)) ||
+      (bad_run_ids_active_ && !checkRunId(event)))
     return false;
   return true;
 }
+
 
 void EventSelector::setVxRange(double min, double max) {
   JETREADER_ASSERT(max > min, "max Vx must be greater than min Vx");
@@ -121,65 +122,65 @@ void EventSelector::clear() {
   refmult_max_ = 0;
 }
 
-bool EventSelector::checkVx(StPicoDst *dst) {
-  double vx = dst->event()->primaryVertex().X();
+bool EventSelector::checkVx(StPicoEvent *event) {
+  double vx = event->primaryVertex().X();
   return vx > vx_min_ && vx < vx_max_;
 }
 
-bool EventSelector::checkVy(StPicoDst *dst) {
-  double vy = dst->event()->primaryVertex().Y();
+bool EventSelector::checkVy(StPicoEvent *event) {
+  double vy = event->primaryVertex().Y();
   return vy > vy_min_ && vy < vy_max_;
 }
 
-bool EventSelector::checkVz(StPicoDst *dst) {
-  double vz = dst->event()->primaryVertex().Z();
+bool EventSelector::checkVz(StPicoEvent *event) {
+  double vz = event->primaryVertex().Z();
   return vz > vz_min_ && vz < vz_max_;
 }
 
-bool EventSelector::checkdVz(StPicoDst *dst) {
-  double dvz = abs(dst->event()->vzVpd() - dst->event()->primaryVertex().Z());
+bool EventSelector::checkdVz(StPicoEvent *event) {
+  double dvz = abs(event->vzVpd() - event->primaryVertex().Z());
   return dvz < dvz_max_;
 }
 
-bool EventSelector::checkVr(StPicoDst *dst) {
-  double vx = dst->event()->primaryVertex().X();
-  double vy = dst->event()->primaryVertex().Y();
+bool EventSelector::checkVr(StPicoEvent *event) {
+  double vx = event->primaryVertex().X();
+  double vy = event->primaryVertex().Y();
   double vr = sqrt(vx * vx + vy * vy);
   return vr < vr_max_;
 }
 
-bool EventSelector::checkRefMult(StPicoDst *dst) {
+bool EventSelector::checkRefMult(StPicoEvent *event) {
   int refmult = 0;
   switch (refmult_type_) {
   case MultType::refMult:
-    refmult = dst->event()->refMult();
+    refmult = event->refMult();
     break;
   case MultType::refMult2:
-    refmult = dst->event()->refMult2();
+    refmult = event->refMult2();
     break;
   case MultType::refMult3:
-    refmult = dst->event()->refMult3();
+    refmult = event->refMult3();
     break;
   case MultType::refMult4:
-    refmult = dst->event()->refMult4();
+    refmult = event->refMult4();
     break;
   case MultType::gRefMult:
-    refmult = dst->event()->grefMult();
+    refmult = event->grefMult();
     break;
   }
   return refmult > refmult_min_ && refmult < refmult_max_;
 }
 
-bool EventSelector::checkTriggerId(StPicoDst *dst) {
+bool EventSelector::checkTriggerId(StPicoEvent *event) {
   bool triggered = false;
   for (auto &trigger : trigger_ids_)
-    if (dst->event()->isTrigger(trigger))
+    if (event->isTrigger(trigger))
       triggered = true;
   return triggered;
 }
 
-bool EventSelector::checkRunId(StPicoDst *dst) {
-  unsigned runid = dst->event()->runId();
+bool EventSelector::checkRunId(StPicoEvent *event) {
+  unsigned runid = event->runId();
   return bad_run_ids_.find(runid) == bad_run_ids_.end();
 }
 

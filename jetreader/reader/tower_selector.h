@@ -8,12 +8,14 @@
 
 namespace jetreader {
 
-class TowerSelectorConfigHelper;
-
 enum class TowerStatus { rejectEvent, rejectTower, acceptTower };
+
+class TowerSelectorConfigHelper;
 
 class TowerSelector {
 public:
+  friend class TowerSelectorConfigHelper;
+
   TowerSelector();
 
   virtual ~TowerSelector() {}
@@ -63,9 +65,6 @@ private:
 
   double et_max_;
   double et_min_;
-
-public:
-  friend class TowerSelectorConfigHelper;
 };
 
 } // namespace jetreader

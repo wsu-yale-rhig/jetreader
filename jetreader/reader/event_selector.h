@@ -1,28 +1,28 @@
 #ifndef JETREADER_READER_EVENT_SELECTOR_H
 #define JETREADER_READER_EVENT_SELECTOR_H
 
-#include "jetreader/reader/tower_selector.h"
-
-#include "StPicoEvent/StPicoDst.h"
+#include "StPicoEvent/StPicoEvent.h"
 
 #include <set>
 #include <string>
 
 namespace jetreader {
 
-class EventSelectorConfigHelper;
-
 enum class MultType { refMult, refMult2, refMult3, refMult4, gRefMult };
+
+class EventSelectorConfigHelper;
 
 class EventSelector {
 public:
+  friend class EventSelectorConfigHelper;
+
   EventSelector();
 
   virtual ~EventSelector() {}
 
   // Primary method to check an event. Returns true if no active selection
   // critera are failed, returns false otherwise.
-  virtual bool select(StPicoDst *dst);
+  virtual bool select(StPicoEvent *dst);
 
   // Select on primary vertex position (vz = direction along the beam pipe,
   // vx/vy are in the transverse plane relative to the beam line)
@@ -58,14 +58,14 @@ public:
   void clear();
 
 protected:
-  bool checkVx(StPicoDst *dst);
-  bool checkVy(StPicoDst *dst);
-  bool checkVz(StPicoDst *dst);
-  bool checkdVz(StPicoDst *dst);
-  bool checkVr(StPicoDst *dst);
-  bool checkRefMult(StPicoDst *dst);
-  bool checkTriggerId(StPicoDst *dst);
-  bool checkRunId(StPicoDst *dst);
+  bool checkVx(StPicoEvent *dst);
+  bool checkVy(StPicoEvent *dst);
+  bool checkVz(StPicoEvent *dst);
+  bool checkdVz(StPicoEvent *dst);
+  bool checkVr(StPicoEvent *dst);
+  bool checkRefMult(StPicoEvent *dst);
+  bool checkTriggerId(StPicoEvent *dst);
+  bool checkRunId(StPicoEvent *dst);
 
 private:
   bool trigger_ids_active_;
@@ -95,9 +95,6 @@ private:
   MultType refmult_type_;
   unsigned refmult_min_;
   unsigned refmult_max_;
-
-public:
-  friend class EventSelectorConfigHelper;
 };
 
 } // namespace jetreader
