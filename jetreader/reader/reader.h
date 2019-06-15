@@ -3,6 +3,7 @@
 
 #include "jetreader/lib/memory.h"
 #include "jetreader/reader/bemc_helper.h"
+#include "jetreader/reader/centrality.h"
 #include "jetreader/reader/config/config_manager.h"
 #include "jetreader/reader/event_selector.h"
 #include "jetreader/reader/tower_selector.h"
@@ -76,6 +77,19 @@ public:
   // have been converted into PseudoJets
   std::vector<fastjet::PseudoJet> &pseudojets();
 
+  // returns the centrality class of the reader - this allows you to set your
+  // own centrality parameters, if necessary. In general, should use
+  // centrality16() or centrality9() to get centrality definitions
+  Centrality &centrality() { return centrality_; }
+
+  // returns the STAR 16 or 9 bin centrality definition for the current event.
+  // special values:
+  // -1 = the event is not valid for the given definition, either due to run id,
+  // vz, luminosity, etc
+  // 16 (or 9) = the event is in the 80-100% centrality bin
+  int centrality16() { return centrality_.centrality16(); }
+  int centrality9() { return centrality_.centrality9(); }
+
   // direct access to event, track and tower selectors
   EventSelector *eventSelector() { return event_selector_.get(); }
   TrackSelector *trackSelector() { return track_selector_.get(); }
@@ -120,6 +134,8 @@ private:
   bool use_mip_corr_;
 
   ConfigManager manager_;
+
+  Centrality centrality_;
 
   unique_ptr<EventSelector> event_selector_;
   unique_ptr<TrackSelector> track_selector_;

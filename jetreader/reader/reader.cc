@@ -85,6 +85,12 @@ EventStatus Reader::readEvent(size_t idx) {
   if (chain()->GetEntry(idx) == 0)
     return EventStatus::ioFailure;
 
+  // load the centrality first so that it can't get de-synced from mixed event
+  // access patterns
+  centrality_.setEvent(
+      picoDst()->event()->runId(), picoDst()->event()->refMult(),
+      picoDst()->event()->ZDCx(), picoDst()->event()->primaryVertex().Z());
+
   // process event
   if (makeEvent() == true)
     return EventStatus::acceptEvent;
