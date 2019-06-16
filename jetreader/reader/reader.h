@@ -77,15 +77,17 @@ public:
   // have been converted into PseudoJets
   std::vector<fastjet::PseudoJet> &pseudojets();
 
-  // returns the centrality class of the reader - this allows you to set your
-  // own centrality parameters, if necessary. In general, should use
-  // centrality16() or centrality9() to get centrality definitions
+  // returns the StRefMultCorr-compatible centrality implementation of the
+  // reader. Before centrality9() or centrality16() can be used, the user must
+  // call reader.centrality().loadCentralityDef(id) with the proper CentDefId
+  // for their given dataset. No default is set, to avoid errors. Event weight
+  // and definition parameters can be accessed through the Centrality class.
   Centrality &centrality() { return centrality_; }
 
   // returns the STAR 16 or 9 bin centrality definition for the current event.
   // special values:
   // -1 = the event is not valid for the given definition, either due to run id,
-  // vz, luminosity, etc
+  // vz, luminosity, etc, or no centrality definition has been loaded
   // 16 (or 9) = the event is in the 80-100% centrality bin
   int centrality16() { return centrality_.centrality16(); }
   int centrality9() { return centrality_.centrality9(); }

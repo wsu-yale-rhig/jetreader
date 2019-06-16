@@ -4,6 +4,8 @@
 // defines a lightweight class that can handle StRefMultCorr corrections
 // allows similar cuts to be set, but without the StRefMultCorr tables
 
+#include "jetreader/reader/centrality_def.h"
+
 #include <random>
 #include <vector>
 
@@ -13,6 +15,11 @@ class Centrality {
 public:
   Centrality();
   ~Centrality();
+
+  // loads the selected refmultcorr & centrality definitions - for list of
+  // available definitions, see centrality_def.h. Must be called before
+  // setEvent()
+  void loadCentralityDef(CentDefId id);
 
   // sets the parameters necessary for refmultcorr calculations, must
   // be called before refMultCorr(), weight(), etc
@@ -80,6 +87,15 @@ public:
   std::vector<double> weightParameters() const { return weight_par_; }
   double reweightingBound() const { return weight_bound_; }
 
+  // allows the user to check if the loaded centrality definition appears to be
+  // in a valid form. Does not guarantee meaningful results, just that all
+  // relevant parameters appear to have been loaded
+  bool isValid();
+
+  // turns off the randomization of the refmult distribution, allows for easier
+  // testing. In general, should be kept on
+  void useSmoothing(bool flag = true) { smoothing_ = flag; }
+
 private:
   bool checkEvent(int runid, double refmult, double zdc, double vz);
   void calculateCentrality(double refmult, double zdc, double vz);
@@ -99,6 +115,8 @@ private:
 
   double vz_norm_;
   double zdc_norm_;
+
+  bool smoothing_;
 
   std::vector<double> zdc_par_;
   std::vector<double> vz_par_;

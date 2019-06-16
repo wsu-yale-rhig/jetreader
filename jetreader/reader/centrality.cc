@@ -7,25 +7,29 @@
 namespace jetreader {
 
 Centrality::Centrality()
-    : refmultcorr_(-1.0), centrality_16_(-1), centrality_9_(-1), weight_(0.0),
-      min_vz_(-30.0), max_vz_(30.0), min_zdc_(0.0), max_zdc_(60000.0),
-      min_run_(15076101), max_run_(15167014), weight_bound_(400), vz_norm_(0),
-      zdc_norm_(30) {
-
-  zdc_par_ = std::vector<double>{175.758, -0.307738};
-  vz_par_ =
-      std::vector<double>{529.051,      0.192153,    0.00485177,  -0.00017741,
-                          -1.44156e-05, 3.97255e-07, -6.80378e-10};
-  weight_par_ = std::vector<double>{1.22692,     -2.04056, 1.53857,    1.55649,
-                                    -0.00123008, 193.648,  1.30923e-06};
-  std::vector<unsigned> cent_bin_16_tmp_ = std::vector<unsigned>{
-      7, 10, 15, 22, 31, 43, 58, 77, 100, 129, 163, 203, 249, 303, 366, 441};
-  setCentralityBounds16Bin(cent_bin_16_tmp_);
+    : refmultcorr_(-1.0), centrality_16_(-1), centrality_9_(-1), weight_(1.0),
+      min_vz_(0.0), max_vz_(0.0), min_zdc_(0.0), max_zdc_(0.0), min_run_(0),
+      max_run_(0), weight_bound_(0), vz_norm_(0), zdc_norm_(0),
+      smoothing_(true) {
 
   dis_ = std::uniform_real_distribution<double>(0.0, 1.0);
 }
 
 Centrality::~Centrality() {}
+
+void Centrality::loadCentralityDef(CentDefId id) {
+  CentralityDef &def = CentralityDef::instance();
+
+  setRunRange(def.runIdMin(id), def.runIdMax(id));
+  setVzRange(def.vzMin(id), def.vzMax(id));
+  setZDCRange(def.zdcMin(id), def.zdcMax(id));
+  setVzNormalizationPoint(def.vzNormPoint(id));
+  setZDCNormalizationPoint(def.zdcNormPoint(id));
+  setZDCParameters(def.zdcParameters(id));
+  setVzParameters(def.vzParameters(id));
+  setWeightParameters(def.weightParameters(id), def.weightBound(id));
+  setCentralityBounds16Bin(def.centralityBounds(id));
+}
 
 void Centrality::setEvent(int runid, double refmult, double zdc, double vz) {
   if (checkEvent(runid, refmult, zdc, vz)) {
@@ -37,7 +41,7 @@ void Centrality::setEvent(int runid, double refmult, double zdc, double vz) {
     refmultcorr_ = refmult;
     centrality_9_ = -1;
     centrality_16_ = -1;
-    weight_ = 0;
+    weight_ = 1.0;
   }
 }
 
@@ -106,6 +110,14 @@ void Centrality::setWeightParameters(const std::vector<double> &pars,
   weight_bound_ = bound;
 }
 
+bool Centrality::isValid() {
+  if (max_run_ <= 0 || weight_par_.size() != 7 || vz_par_.size() != 7 ||
+      zdc_par_.size() != 2 || cent_bin_16_.size() != 16 ||
+      (max_zdc_ <= min_zdc_) || (max_vz_ <= min_vz_))
+    return false;
+  return true;
+}
+
 bool Centrality::checkEvent(int runid, double refmult, double zdc, double vz) {
   if (refmult < 0)
     return false;
@@ -122,16 +134,18 @@ void Centrality::calculateCentrality(double refmult, double zdc, double vz) {
 
   // we randomize raw refmult within 1 bin to avoid the peaky structures at low
   // refmult
-  double raw_ref = refmult + dis_(gen_);
+  double raw_ref = refmult;
+  if (smoothing_)
+    raw_ref += dis_(gen_);
 
   if (zdc_par_.empty() || vz_par_.empty()) {
     std::cerr << "zdc and vz correction parameters must be set before "
                  "refmultcorr can be calculated"
               << std::endl;
-    refmultcorr_ = 0.0;
+    refmultcorr_ = refmult;
     centrality_9_ = -1;
     centrality_16_ = -1;
-    weight_ = 0.0;
+    weight_ = 1.0;
   }
 
   double zdc_scaling = zdc_par_[0] + zdc_par_[1] * zdc / 1000.0;
