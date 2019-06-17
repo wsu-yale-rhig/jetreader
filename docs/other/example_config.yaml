@@ -37,7 +37,7 @@ towerSelector:
     - 1
     - 2
   badTowerFiles:
-    - "path/to/bad_file_list.csv"
+    - "path/to/bad_tower_list.csv"
 
 # trackSelector - configures the jetreader::TrackSelector
 # maxDCA - sets the maximum global distance of closest approach for a track
