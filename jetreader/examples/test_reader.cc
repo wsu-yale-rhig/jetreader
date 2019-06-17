@@ -24,15 +24,19 @@ int main() {
   reader.eventSelector()->setVrMax(0.5);
   reader.eventSelector()->setdVzMax(3.0);
 
-  reader.trackSelector()->setDcaMax(1.0);
+  reader.trackSelector()->setDcaMax(3.0);
   reader.trackSelector()->setNHitsMin(15);
   reader.trackSelector()->setNHitsFracMin(0.52);
+  reader.trackSelector()->setPtMax(30.0);
+
+  reader.towerSelector()->setEtMax(30.0);
 
   // turn off branches that don't exist in this tree (not necessary) and
   // initialize the reader
   reader.SetStatus("BEmcSmdEHit", false);
   reader.SetStatus("BEmcSmdPHit", false);
   reader.Init();
+  reader.writeConfig("example.yaml");
 
   std::cout << "number of events in chain: " << reader.tree()->GetEntries()
             << std::endl;

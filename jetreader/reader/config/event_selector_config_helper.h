@@ -38,7 +38,7 @@ private:
   std::string vx_key_ = "vxRange";
   std::string vy_key_ = "vyRange";
   std::string vz_key_ = "vzRange";
-  std::string vr_max_key_ = "vrRange";
+  std::string vr_max_key_ = "vrMax";
   std::string dvz_max_key_ = "dvzMax";
   std::string refmult_type_key_ = "refMultType";
   std::string refmult_key_ = "refMultRange";

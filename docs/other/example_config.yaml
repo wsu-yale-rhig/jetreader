@@ -1,0 +1,97 @@
+# you can add a comment by starting a line with a # 
+
+# there are 4 main divisions in the configuration. reader, towerSelector, 
+# trackSelector and eventSelector. Each of them configures a single class
+# in the reader setup. In YAML, hierarchy is denoted by whitespace - sorry
+# Joern :)  
+# The allowed options for each class can be found in 
+# jetreader/reader/config/config_manager.h
+# jetreader/reader/config/reader_config_helper.h
+# jetreader/reader/config/event_selector_config_helper.h
+# jetreader/reader/config/tower_selector_config_helper.h
+# jetreader/reader/config/track_selector_config_helper.h
+
+# reader - configures the jetreader::Reader.
+# usePrimary selects global or primary tracks 
+# useHadronicCorrection, hadronicCorrectionFraction and useMIPCorrection
+# select which type of tower energy correction scheme to apply.
+reader:
+  usePrimary: true
+  useHadronicCorrection: true
+  hadronicCorrectionFraction: 1.0
+  useMIPCorrection: false
+
+# towerSelector - configures the jetreader::TowerSelector
+# EtMax - sets the maximum ET for a tower
+# rejectEventOnMaxEtFailure - if true, event is rejected when a tower with
+# corrected ET > EtMax is present
+# EtMin - sets a minimum ET for accepted towers (towers below this threshold
+# are not added to the final set of pseudojets)
+# badTowers - single towers to add to the bad tower list
+# badTowerFiles - path(s) to bad tower list csv file(s)
+towerSelector:
+  EtMax: 30
+  rejectEventOnMaxEtFailure: true
+  badTowers:
+    - 0
+    - 1
+    - 2
+  badTowerFiles:
+    - "path/to/bad_file_list.csv"
+
+# trackSelector - configures the jetreader::TrackSelector
+# maxDCA - sets the maximum global distance of closest approach for a track
+# nHitsMin - sets the minimum number of fit points for a track
+# nHitsFracMin - sets the minimum fraction of nHits / nHitsPossible (set at or
+# above 0.52 should eliminate split tracks)
+# PtMax - maximum pT of accepted tracks - uses primary pT if using primary
+# tracks, global pT if using global tracks
+# PtMin - minimum pT for accepted tracks 
+# rejectEventOnMaxPtFailure - if true, events with a track with pT > PtMax are 
+# rejected
+# chi2Max - set a maximum for the chi2 of the track's helix fit to space points
+
+trackSelector:
+  maxDCA: 3
+  nHitsMin: 15
+  nhitsFracMin: 0.52000000000000002
+  PtMax: 30
+  rejectEventOnMaxPtFailure: true
+
+# eventSelector - configures the jetreader::EventSelector
+# v[x,y,z]Range - acceptable ranges for the primary vertex. Z is along the beam
+# line, x and y are in the transverse plane (minimum must come first)
+# vrMax - the maximum accepted distance in the transverse plane from (0, 0, 0) 
+# for the primary vertex
+# dvzMax - maximum distance along the beam line between the TPC primary vertex 
+# and the reconstructed vpd Vz - (helps to select the triggered primary vertex
+# when using a trigger that includes the VPD)
+# refMultType - selects the refmult definition to use for refmult cuts. Defined
+# in jetreader::EventSelector. Default is 0 - which stands for refmult1, our 
+# normal refmult definition.
+# refMultRange - sets the minimum & maximum refmult (minimum must come first)
+# triggerIds - allows you to select single trigger Ids. By default, if no 
+# trigger IDs are specified, all events are accepted. Once a trigger Id is 
+# specified, only events with that trigger are accepted.
+# triggerIdStrings - allows the user to select families of trigger IDs - defined 
+# in jetreader/reader/trigger_lookup.h
+eventSelector:
+  vxRange:
+    - -0.5
+    - 0.5
+  vyRange:
+    - -0.5
+    - 0.5
+  vzRange:
+    - -15
+    - 15
+  vrRange: 0.5
+  dvzMax: 3
+  refMultType: 0
+  refMultRange:
+    - 1
+    - 700
+  triggerIds:
+    - 123456
+  triggerIdStrings:
+    - "some_triggerid_string"
