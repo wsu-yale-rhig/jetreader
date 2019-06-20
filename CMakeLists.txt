@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 2.8.12 FATAL_ERROR)
 cmake_policy(SET CMP0042 NEW)
 cmake_policy(SET CMP0048 NEW) ## version defined in project()
-cmake_policy(SET CMP0077 NEW)
+
+## policy 0077 is not supported by older cmake versions, but may cause 
+## problems without it, so I am leaving it here for now
+##cmake_policy(SET CMP0077 NEW)
 
 ## project title and version
 project(jetreader
