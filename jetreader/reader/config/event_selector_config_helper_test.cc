@@ -117,12 +117,17 @@ TEST(EventSelectorConfigHelper, testLoadConfigVertex) {
   StPicoEvent event;
   SetDefaultEventParameters(event);
 
-  EXPECT_EQ(selector.select(&event), true);
+  bool status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+                    ? true
+                    : false;
+  EXPECT_EQ(status, true);
 
   // check vx cut
   event.setPrimaryVertexPosition(0.051, -0.3, 5.0);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
   EXPECT_EQ(selector.checkVx(&event), false);
   EXPECT_EQ(selector.checkVy(&event), true);
   EXPECT_EQ(selector.checkVz(&event), true);
@@ -131,8 +136,10 @@ TEST(EventSelectorConfigHelper, testLoadConfigVertex) {
 
   // check vy cut & vr cut
   event.setPrimaryVertexPosition(0.0, -0.351, 5.0);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
   EXPECT_EQ(selector.checkVx(&event), true);
   EXPECT_EQ(selector.checkVy(&event), false);
   EXPECT_EQ(selector.checkVz(&event), true);
@@ -140,8 +147,10 @@ TEST(EventSelectorConfigHelper, testLoadConfigVertex) {
   EXPECT_EQ(selector.checkVr(&event), true);
 
   event.setPrimaryVertexPosition(0.0, -0.249, 5.0);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
   EXPECT_EQ(selector.checkVx(&event), true);
   EXPECT_EQ(selector.checkVy(&event), false);
   EXPECT_EQ(selector.checkVz(&event), true);
@@ -150,8 +159,10 @@ TEST(EventSelectorConfigHelper, testLoadConfigVertex) {
 
   // check vz cut & dvz cut
   event.setPrimaryVertexPosition(0.0, -0.30, 35.0);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
   EXPECT_EQ(selector.checkVx(&event), true);
   EXPECT_EQ(selector.checkVy(&event), true);
   EXPECT_EQ(selector.checkVz(&event), false);
@@ -159,8 +170,10 @@ TEST(EventSelectorConfigHelper, testLoadConfigVertex) {
   EXPECT_EQ(selector.checkVr(&event), true);
 
   event.setPrimaryVertexPosition(0.0, -0.3, -26.0);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
   EXPECT_EQ(selector.checkVx(&event), true);
   EXPECT_EQ(selector.checkVy(&event), true);
   EXPECT_EQ(selector.checkVz(&event), false);
@@ -201,23 +214,37 @@ TEST(EventSelectorConfigHelper, testLoadConfigRefMult) {
 
   StPicoEvent event;
   SetDefaultEventParameters(event);
-
-  EXPECT_EQ(selector.select(&event), true);
+  bool status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+                    ? true
+                    : false;
+  EXPECT_EQ(status, true);
 
   // check refmult cut
   event.setRefMultNeg(251);
-  EXPECT_EQ(selector.select(&event), true);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, true);
 
   event.setRefMultPos(250);
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
 
   event.setRefMultNeg(20);
   event.setRefMultPos(20);
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
 
   event.setRefMultNeg(250);
   event.setRefMultPos(300);
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+               ? true
+               : false;
+  EXPECT_EQ(status, false);
 
   if (remove(config.bad_tower_file.c_str()) != 0)
     std::cerr << "error removing file after test: " << config.bad_tower_file
@@ -253,18 +280,21 @@ TEST(EventSelectorConfigHelper, testLoadConfigBadRun) {
 
   StPicoEvent event;
   SetDefaultEventParameters(event);
-
-  EXPECT_EQ(selector.select(&event), true);
+  bool status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+                    ? true
+                    : false;
+  EXPECT_EQ(status, true);
 
   // check bad run cut
   event.setRunId(15095020);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
+                                                                        : false;
+  EXPECT_EQ(status, true);
 
   event.setRunId(15095021);
-
-  EXPECT_EQ(selector.select(&event), true);
-  
+  status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
+                                                                        : false;
+  EXPECT_EQ(status, false);
 
   if (remove(config.bad_tower_file.c_str()) != 0)
     std::cerr << "error removing file after test: " << config.bad_tower_file
@@ -300,18 +330,21 @@ TEST(EventSelectorConfigHelper, testLoadConfigBadRunFile) {
 
   StPicoEvent event;
   SetDefaultEventParameters(event);
-
-  EXPECT_EQ(selector.select(&event), true);
+  bool status = selector.select(&event) == jetreader::EventStatus::acceptEvent
+                    ? true
+                    : false;
+  EXPECT_EQ(status, true);
 
   // check bad run cut
   event.setRunId(15095020);
-
-  EXPECT_EQ(selector.select(&event), false);
+  status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
+                                                                        : false;
+  EXPECT_EQ(status, true);
 
   event.setRunId(15095021);
-
-  EXPECT_EQ(selector.select(&event), true);
-  
+  status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
+                                                                        : false;
+  EXPECT_EQ(status, false);
 
   if (remove(config.bad_tower_file.c_str()) != 0)
     std::cerr << "error removing file after test: " << config.bad_tower_file

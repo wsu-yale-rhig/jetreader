@@ -10,17 +10,18 @@ namespace jetreader {
 
 EventSelector::EventSelector() { clear(); }
 
-bool EventSelector::select(StPicoEvent *event) {
+EventStatus EventSelector::select(StPicoEvent *event) {
+  if (bad_run_ids_active_ && !checkRunId(event))
+    return EventStatus::rejectRun;
+
   if ((vx_active_ && !checkVx(event)) || (vy_active_ && !checkVy(event)) ||
       (vz_active_ && !checkVz(event)) || (dvz_active_ && !checkdVz(event)) ||
       (vr_active_ && !checkVr(event)) ||
       (refmult_active_ && !checkRefMult(event)) ||
-      (trigger_ids_active_ && !checkTriggerId(event)) ||
-      (bad_run_ids_active_ && !checkRunId(event)))
-    return false;
-  return true;
+      (trigger_ids_active_ && !checkTriggerId(event)))
+    return EventStatus::rejectEvent;
+  return EventStatus::acceptEvent;
 }
-
 
 void EventSelector::setVxRange(double min, double max) {
   JETREADER_ASSERT(max > min, "max Vx must be greater than min Vx");

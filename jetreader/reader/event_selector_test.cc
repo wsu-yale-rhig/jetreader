@@ -13,11 +13,15 @@ public:
   bool checkVy(StPicoEvent *event) { return EventSelector::checkVy(event); }
   bool checkVz(StPicoEvent *event) { return EventSelector::checkVz(event); }
   bool checkdVz(StPicoEvent *event) { return EventSelector::checkdVz(event); }
-  bool checkRefMult(StPicoEvent *event) { return EventSelector::checkRefMult(event); }
+  bool checkRefMult(StPicoEvent *event) {
+    return EventSelector::checkRefMult(event);
+  }
   bool checkTriggerId(StPicoEvent *event) {
     return EventSelector::checkTriggerId(event);
   }
-  bool checkRunId(StPicoEvent *event) { return EventSelector::checkRunId(event); }
+  bool checkRunId(StPicoEvent *event) {
+    return EventSelector::checkRunId(event);
+  }
 };
 
 TEST(EventSelector, Vertex) {
@@ -57,8 +61,11 @@ TEST(EventSelector, Vertex) {
     EXPECT_EQ(vy_cut, selector.checkVy(reader.picoDst()->event()));
     EXPECT_EQ(vz_cut, selector.checkVz(reader.picoDst()->event()));
     EXPECT_EQ(dvz_cut, selector.checkdVz(reader.picoDst()->event()));
-    EXPECT_EQ(vx_cut && vy_cut && vz_cut && dvz_cut,
-              selector.select(reader.picoDst()->event()));
+    bool status = selector.select(reader.picoDst()->event()) ==
+                          jetreader::EventStatus::acceptEvent
+                      ? true
+                      : false;
+    EXPECT_EQ(vx_cut && vy_cut && vz_cut && dvz_cut, status);
   }
 
   reader.readEvent(0);
@@ -68,7 +75,11 @@ TEST(EventSelector, Vertex) {
   reader.eventSelector()->setdVzMax(dvz_max);
 
   while (reader.next()) {
-    EXPECT_EQ(true, selector.select(reader.picoDst()->event()));
+    bool status = selector.select(reader.picoDst()->event()) ==
+                          jetreader::EventStatus::acceptEvent
+                      ? true
+                      : false;
+    EXPECT_EQ(true, status);
   }
 }
 
@@ -111,7 +122,11 @@ TEST(EventSelector, RefMult) {
       }
       bool test_result = refmult > ref_min && refmult < ref_max;
       EXPECT_EQ(test_result, selector.checkRefMult(reader.picoDst()->event()));
-      EXPECT_EQ(test_result, selector.select(reader.picoDst()->event()));
+      bool status = selector.select(reader.picoDst()->event()) ==
+                            jetreader::EventStatus::acceptEvent
+                        ? true
+                        : false;
+      EXPECT_EQ(test_result, status);
     }
   }
 
@@ -138,7 +153,11 @@ TEST(EventSelector, RefMult) {
         refmult = reader.picoDst()->event()->grefMult();
         break;
       }
-      EXPECT_EQ(true, selector.select(reader.picoDst()->event()));
+      bool status = selector.select(reader.picoDst()->event()) ==
+                            jetreader::EventStatus::acceptEvent
+                        ? true
+                        : false;
+      EXPECT_EQ(true, status);
     }
   }
 }
@@ -163,7 +182,12 @@ TEST(EventSelector, Trigger) {
         has_trig = true;
     }
     EXPECT_EQ(has_trig, selector.checkTriggerId(reader.picoDst()->event()));
-    EXPECT_EQ(has_trig, selector.select(reader.picoDst()->event()));
+
+    bool status = selector.select(reader.picoDst()->event()) ==
+                          jetreader::EventStatus::acceptEvent
+                      ? true
+                      : false;
+    EXPECT_EQ(has_trig, status);
   }
 
   for (auto &trig : trig_ids)
@@ -200,7 +224,12 @@ TEST(EventSelector, BadRuns) {
         test = false;
 
     EXPECT_EQ(test, selector.checkRunId(reader.picoDst()->event()));
-    EXPECT_EQ(test, selector.select(reader.picoDst()->event()));
+
+    bool status = selector.select(reader.picoDst()->event()) ==
+                          jetreader::EventStatus::acceptEvent
+                      ? true
+                      : false;
+    EXPECT_EQ(test, status);
   }
 
   reader.eventSelector()->addBadRuns(run_ids);

@@ -19,9 +19,6 @@
 
 namespace jetreader {
 
-// returned by readEvent(idx)
-enum class EventStatus { ioFailure, acceptEvent, rejectEvent };
-
 class ReaderConfigHelper;
 
 class Reader : public StPicoDstReader {
@@ -48,8 +45,9 @@ public:
 
   // Reads in event at position idx in the chain, regardless of event selection
   // criteria. If loading is successful and event passes event cuts,  returns
-  // EventStatus::pass. If the event does not pass event selection, returns
-  // EventStatus::fail. If there is an io error, returns EventStatus::ioFailure
+  // EventStatus::acceptEvent. If the event does not pass event selection,
+  // returns EventStatus:rejectEvent. If there is an io error, returns
+  // EventStatus::ioFailure
   EventStatus readEvent(size_t idx);
 
   // Initializes event, track and tower selectors and the reader. Must be called
@@ -115,7 +113,7 @@ private:
   // called by next() and readEvent() to process tracks and towers into
   // pseudojets. Returning failure indicates that the event should not be used
   // when calling next()
-  bool makeEvent();
+  EventStatus makeEvent();
 
   // used internally by makeEvent(). These functions return false if the entire
   // event should be rejected, return false otherwise.

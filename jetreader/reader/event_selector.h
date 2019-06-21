@@ -9,6 +9,7 @@
 namespace jetreader {
 
 enum class MultType { refMult, refMult2, refMult3, refMult4, gRefMult };
+enum class EventStatus { rejectRun, rejectEvent, acceptEvent };
 
 class EventSelectorConfigHelper;
 
@@ -22,7 +23,7 @@ public:
 
   // Primary method to check an event. Returns true if no active selection
   // critera are failed, returns false otherwise.
-  virtual bool select(StPicoEvent *dst);
+  virtual EventStatus select(StPicoEvent *dst);
 
   // Select on primary vertex position (vz = direction along the beam pipe,
   // vx/vy are in the transverse plane relative to the beam line)

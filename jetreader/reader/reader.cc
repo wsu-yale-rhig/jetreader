@@ -39,21 +39,19 @@ void Reader::writeConfig(const std::string &yaml_filename) {
 }
 
 bool Reader::next() {
-  // clear last event
-  clear();
 
   if (chain() == nullptr) {
     JETREADER_THROW("No input file loaded: next() failed");
   }
 
-  // last valid index in the chain
+  // last valid index in the chain, make sure we don't try to load past this
   int64_t last_event_index = chain()->GetEntries() - 1;
 
-  // we count the number of IO errors - if it passes
-  // a threshold (10, for now), we exit
-  int io_errors = 0;
+  // loop to find the next accepted event, or until we hit the end of the chain.
+  // for the special case of when we find a bad run index, we will attempt to
+  // speed-up running through the event chain by disabling all branches except
+  // for the Event branch.
   while (chain()->GetReadEvent() < last_event_index) {
-    // attempt to load the next event
     EventStatus load_status = readEvent(++index_);
 
     switch (load_status) {
@@ -61,16 +59,16 @@ bool Reader::next() {
       return true;
     case EventStatus::rejectEvent:
       continue;
-    case EventStatus::ioFailure:
-      if (++io_errors >= 10)
-        JETREADER_THROW("IO failure for ", io_errors, " events: exiting");
+    case EventStatus::rejectRun:
+      break;
     }
   }
   return false;
 }
 
 EventStatus Reader::readEvent(size_t idx) {
-  // clear last event
+  // clear last event - prevents accumulation of stale pseudojets or tower-track
+  // matches.
   clear();
 
   if (chain() == nullptr)
@@ -82,21 +80,19 @@ EventStatus Reader::readEvent(size_t idx) {
 
   // attempt to load the requested event
   index_ = idx;
-  if (chain()->GetEntry(idx) == 0)
-    return EventStatus::ioFailure;
+  JETREADER_ASSERT(chain()->GetEntry(idx) != 0,
+                   "I/O Failure attempting to load event ", idx,
+                   " in the chain");
 
-  // load the centrality first so that it can't get de-synced from mixed event
-  // access patterns
+  // load the centrality first so that it is always calculated, and we never get
+  // event de-syncs for whatever reason
   if (centrality_.isValid()) {
     centrality_.setEvent(
         picoDst()->event()->runId(), picoDst()->event()->refMult(),
         picoDst()->event()->ZDCx(), picoDst()->event()->primaryVertex().Z());
   }
-  // process event
-  if (makeEvent() == true)
-    return EventStatus::acceptEvent;
-  else
-    return EventStatus::rejectEvent;
+
+  return makeEvent();
 }
 
 void Reader::init() {
@@ -158,24 +154,25 @@ void Reader::clear() {
     c.clear();
 }
 
-bool Reader::makeEvent() {
-  bool event_status = true;
+EventStatus Reader::makeEvent() {
 
-  // EventSelector contains all event-level cuts - such as vertex position, bad
-  // run lists, etc. So if any of those selections aren't passed, we can stop
-  // without the relatively slow processing of tracks or towers
-  if (!event_selector_->select(picoDst()->event()))
-    event_status = false;
+  // EventSelector contains all event-level cuts - such as vertex position,
+  // bad run lists, etc. So if any of those selections aren't passed, we can
+  // stop without the relatively slow processing of tracks or towers
+  EventStatus event_status = event_selector_->select(picoDst()->event());
+
+  if (event_status != EventStatus::acceptEvent)
+    return event_status;
 
   // now process all tracks and towers, after the event selection is passed
   if (chain()->GetBranchStatus("Track"))
     if (!selectTracks())
-      event_status = false;
+      return EventStatus::rejectEvent;
   if (chain()->GetBranchStatus("BTowHit"))
     if (!selectTowers())
-      event_status = false;
+      return EventStatus::rejectEvent;
 
-  return event_status;
+  return EventStatus::acceptEvent;
 }
 
 bool Reader::selectTracks() {
@@ -235,9 +232,9 @@ bool Reader::selectTowers() {
 }
 
 double Reader::towerMIPCorrection(unsigned tow_idx, double tow_eta) {
-  // copied from TStarJetPicoReader - has a note saying it may be 0.264 instead
-  // of 0.261. MIP value taken from spin group
-  // nick: as its written its using eta - shouldn't it be using corrected eta?
+  // copied from TStarJetPicoReader - has a note saying it may be 0.264
+  // instead of 0.261. MIP value taken from spin group nick: as its written
+  // its using eta - shouldn't it be using corrected eta?
 
   double tow_energy = picoDst()->btowHit(tow_idx)->energy();
   double theta = 2.0 * atan(exp(tow_eta));
