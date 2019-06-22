@@ -102,8 +102,8 @@ public:
   void setTrackSelector(TrackSelector *selector);
   void setTowerSelector(TowerSelector *selector);
 
-  int currentEntry() { return chain()->GetReadEntry(); }
-  int entries() { return chain()->GetEntries(); }
+  int64_t currentEntry() { return chain()->GetReadEntry(); }
+  int64_t entries() { return chain()->GetEntries(); }
 
 private:
   // used when reading a new event to clear state from previous
@@ -116,13 +116,19 @@ private:
   EventStatus makeEvent();
 
   // used internally by makeEvent(). These functions return false if the entire
-  // event should be rejected, return false otherwise.
+  // event should be rejected, return true otherwise.
   bool selectTracks();
   bool selectTowers();
 
   // tower E correction schemes - either MIP or hadronic correction
   double towerMIPCorrection(unsigned tow_idx, double tow_eta);
   double towerHadronicCorrection(unsigned tow_idx);
+
+  // used to speed-up reading through consecutive events in bad runs which won't
+  // be processed. Disables large branches such as tracks and towers and scans
+  // each event runID without processing the full event. Returns true if a new run
+  // is found, returns false at the end of the chain.
+  bool findNextGoodRun();
 
   int64_t index_;
 

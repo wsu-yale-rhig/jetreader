@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include "StPicoEvent/StPicoArrays.h"
 #include "StPicoEvent/StPicoBEmcPidTraits.h"
 
 namespace jetreader {
@@ -60,6 +61,8 @@ bool Reader::next() {
     case EventStatus::rejectEvent:
       continue;
     case EventStatus::rejectRun:
+      if (findNextGoodRun())
+        return true;
       break;
     }
   }
@@ -80,9 +83,10 @@ EventStatus Reader::readEvent(size_t idx) {
 
   // attempt to load the requested event
   index_ = idx;
-  JETREADER_ASSERT(chain()->GetEntry(idx) != 0,
-                   "I/O Failure attempting to load event ", idx,
-                   " in the chain");
+
+  int load_status = chain()->GetEntry(idx);
+  JETREADER_ASSERT(load_status > 0, "failure attempting to load event ", idx,
+                   " in the chain, returned status ", load_status);
 
   // load the centrality first so that it is always calculated, and we never get
   // event de-syncs for whatever reason
@@ -259,6 +263,55 @@ double Reader::towerHadronicCorrection(unsigned tow_idx) {
       corrected_e -= track->gPtot() * had_corr_fraction_;
   }
   return corrected_e;
+}
+
+bool Reader::findNextGoodRun() {
+  std::vector<std::pair<std::string, int>> status_map;
+  
+  for (int i = 0; i < StPicoArrays::NAllPicoArrays; ++i) {
+    std::string branchname = StPicoArrays::picoArrayNames[i];
+    bool status = chain()->GetBranchStatus(branchname.c_str());
+    status_map.push_back({branchname, status});
+
+    // if i == 0, branch should be "Event" which we need on. Otherwise, we turn
+    // all branches off to speedup reading
+    if (i != 0) {
+      chain()->SetBranchStatus(branchname.c_str(), 0);
+    } else {
+      chain()->SetBranchStatus(branchname.c_str(), 1);
+    }
+  }
+
+  bool found_good_run = false;
+  int current_event = index_;
+  EventStatus event_status = event_selector_->select(picoDst()->event());
+  
+  while (event_status == EventStatus::rejectRun) {
+    // attempt to load next entry
+    ++current_event;
+
+    int load_status = chain()->GetEntry(current_event);
+    JETREADER_ASSERT(load_status > 0, "Failure attempting to load event ",
+                     current_event, " in the chain, returned status ",
+                     load_status);
+    event_status = event_selector_->select(picoDst()->event());
+
+    if (event_status != EventStatus::rejectRun) {
+      found_good_run = true;
+      break;
+    }
+    
+    // check if we're at the end of the chain - if so, break
+    if (current_event >= chain()->GetEntries() - 1)
+      break;
+  }
+
+  // put branches back to their original state and reload the current event
+  for (auto &branch : status_map)
+    chain()->SetBranchStatus(branch.first.c_str(), branch.second);
+  readEvent(current_event);
+  
+  return found_good_run;
 }
 
 } // namespace jetreader
