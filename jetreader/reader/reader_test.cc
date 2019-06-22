@@ -162,9 +162,14 @@ TEST(Reader, findNextGoodRun) {
       EXPECT_FALSE(test_config.good_runs.find(runid) ==
                    test_config.bad_runs.end());
       good_events++;
+
+      StPicoTrack* track = reader.picoDst()->track(0);
+      EXPECT_NEAR(track->pMom().X(), 1.0, 1e-5);
+      EXPECT_NEAR(track->pMom().Y(), 1.5, 1e-5);
+      EXPECT_NEAR(track->pMom().Z(), 2.0, 1e-5);
     }
 
-    for (auto& entry : runid_count) {
+    for (auto &entry : runid_count) {
       EXPECT_EQ(entry.second, test_config.event_counts[entry.first]);
     }
 
@@ -221,6 +226,11 @@ TestPicoInfo makePicoFile(unsigned seed) {
       new ((*(arrays[StPicoArrays::Event]))[counter]) StPicoEvent();
       StPicoEvent *event =
           (StPicoEvent *)arrays[StPicoArrays::Event]->At(counter);
+      int track_counter = arrays[StPicoArrays::Track]->GetEntries();
+      new ((*(arrays[StPicoArrays::Track]))[track_counter]) StPicoTrack();
+      StPicoTrack *track =
+          (StPicoTrack *)arrays[StPicoArrays::Track]->At(track_counter);
+      track->setPrimaryMomentum(1.0, 1.5, 2.0);
 
       event->setRunId(i);
       info.event_runid.push_back(i);
