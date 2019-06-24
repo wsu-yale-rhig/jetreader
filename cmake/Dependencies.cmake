@@ -21,9 +21,8 @@ JR_include_directories(${PICO_INCLUDE_DIRS})
 
 ## yaml-cpp 
 set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
-set(BUILD_SHARED_LIBS OFF)
+set(BUILD_SHARED_LIBS ON)
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "do not built yaml-cpp tests")
-set(YAML_CPP_INSTALL OFF CACHE BOOL "do not install yaml-cpp")
 
 ## add the yaml library
 add_subdirectory(third_party/yaml-cpp)
