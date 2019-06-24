@@ -5,6 +5,8 @@
 
 #include <iostream>
 
+#include "yaml-cpp/yaml.h"
+
 namespace jetreader {
 
 EventSelectorConfigHelper::EventSelectorConfigHelper(){};

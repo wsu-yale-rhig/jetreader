@@ -3,6 +3,8 @@
 
 #include <iostream>
 
+#include "yaml-cpp/yaml.h"
+
 namespace jetreader {
 
 TowerSelectorConfigHelper::TowerSelectorConfigHelper(){};

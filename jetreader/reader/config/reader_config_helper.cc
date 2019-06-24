@@ -1,6 +1,8 @@
 #include "jetreader/reader/config/reader_config_helper.h"
 #include "jetreader/reader/reader.h"
 
+#include "yaml-cpp/yaml.h"
+
 namespace jetreader {
 
 ReaderConfigHelper::ReaderConfigHelper(){};

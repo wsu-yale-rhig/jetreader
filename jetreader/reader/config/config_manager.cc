@@ -8,6 +8,8 @@
 
 #include <fstream>
 
+#include "yaml-cpp/yaml.h"
+
 namespace jetreader {
 
 ConfigManager::ConfigManager(Reader *rdr) : reader_(rdr){};
@@ -17,9 +19,9 @@ void ConfigManager::loadConfig(const std::string &filename) {
                    "attempted to load a config, but reader is unspecified");
 
   // attempt to parse filename
-  config_ = YAML::LoadFile(filename);
+  YAML::Node config = YAML::LoadFile(filename);
 
-  for (auto &&entry : config_) {
+  for (auto &&entry : config) {
     std::string key = entry.first.as<std::string>();
     if (key == readerKey()) {
       loadReaderConfig(entry.second);
@@ -37,16 +39,17 @@ void ConfigManager::writeConfig(const std::string &filename) {
   JETREADER_ASSERT(reader_ != nullptr,
                    "attempted to write a config, but reader is unspecified");
   
-  // first, update config
-  config_[readerKey()] = readReaderConfig();
-  config_[towerSelectorKey()] = readTowerSelectorConfig();
-  config_[trackSelectorKey()] = readTrackSelectorConfig();
-  config_[eventSelectorKey()] = readEventSelectorConfig();
+  // read config from ConfigHelpers
+  YAML::Node config;
+  config[readerKey()] = readReaderConfig();
+  config[towerSelectorKey()] = readTowerSelectorConfig();
+  config[trackSelectorKey()] = readTrackSelectorConfig();
+  config[eventSelectorKey()] = readEventSelectorConfig();
 
   // write to file
   std::ofstream out;
   out.open(filename);
-  out << config_;
+  out << config;
   out.close();
 }
 

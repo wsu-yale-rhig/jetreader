@@ -3,7 +3,9 @@
 
 #include <string>
 
-#include "yaml-cpp/yaml.h"
+namespace YAML {
+class Node;
+}
 
 namespace jetreader {
 

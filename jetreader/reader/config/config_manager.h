@@ -3,7 +3,9 @@
 
 #include <string>
 
-#include "yaml-cpp/yaml.h"
+namespace YAML {
+class Node;
+}
 
 namespace jetreader {
 
@@ -36,7 +38,6 @@ private:
   YAML::Node readEventSelectorConfig();
 
   Reader *reader_;
-  YAML::Node config_;
 
   std::string reader_key_ = "reader";
   std::string event_selector_key_ = "eventSelector";
