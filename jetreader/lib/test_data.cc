@@ -10,8 +10,6 @@
 
 #include <fstream>
 
-#include "yaml-cpp/yaml.h"
-
 namespace jetreader {
 
 #if defined(WIN32) || defined(_WIN32)
