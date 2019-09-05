@@ -32,10 +32,14 @@ public:
 
   ~Reader();
 
-  // Loads a YAML config file - fill in details later
+  // Loads a YAML config file. The details of the expected configuration file
+  // can be found in the jetreader/reader/config headers, in the ConfigManager
+  // and the ConfigHelpers. And example is located in the jetreader root
+  // directory under docs/other/example_config.yaml.
   void loadConfig(const std::string &yaml_filename);
 
-  // dumps config to file in YAML format - fill in details later
+  // dumps config to file in YAML format. Records the current state of the
+  // reader and its selectors.
   void writeConfig(const std::string &yaml_filename);
 
   // Reads until the next event that satisfies event selection criteria is
