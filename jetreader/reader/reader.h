@@ -66,7 +66,7 @@ public:
   bool globalTracks() { return !use_primary_tracks_; }
 
   // turn on hadronic correction or MIP correction for towers. Fraction is the
-  // percent of a track's pT to subtract from the corresponding tower ET in
+  // percent of a track's p to subtract from the corresponding tower E in
   // hadronic correction. Only one correction scheme can be active at one time
   // - by default, 100% hadronic correction is on
   void useMIPCorrection(bool flag);
@@ -74,6 +74,18 @@ public:
   bool MIPCorrection() const { return use_mip_corr_; }
   bool hadronicCorrection() const { return use_had_corr_; }
   double hadronicCorrectionFraction() const { return had_corr_fraction_; }
+
+  // tracks can be matched to the nearest tower when the extrapolation of the
+  // track ends up in the space between towers. Whether these inexact matches
+  // are used in hadronic correction can be controlled using this method. When
+  // its turned off (default behavior) only tracks that are extrapolated
+  // directly into a tower are used
+  void useApproximateTrackTowerMatching(bool flag) {
+    approx_track_tower_match_ = flag;
+  }
+  bool approximateTrackTowerMatching() const {
+    return approx_track_tower_match_;
+  }
 
   // processes the event and returns a list of selected tracks and towers, which
   // have been converted into PseudoJets
@@ -130,8 +142,8 @@ private:
 
   // used to speed-up reading through consecutive events in bad runs which won't
   // be processed. Disables large branches such as tracks and towers and scans
-  // each event runID without processing the full event. Returns true if a new run
-  // is found, returns false at the end of the chain.
+  // each event runID without processing the full event. Returns true if a new
+  // run is found, returns false at the end of the chain.
   bool findNextGoodRun();
 
   int64_t index_;
@@ -142,6 +154,7 @@ private:
   double had_corr_fraction_;
   std::vector<std::vector<unsigned>> had_corr_map_;
   bool use_mip_corr_;
+  bool approx_track_tower_match_;
 
   ConfigManager manager_;
 

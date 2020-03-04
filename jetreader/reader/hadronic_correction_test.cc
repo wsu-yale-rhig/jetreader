@@ -16,14 +16,18 @@
 
 #include "fastjet/PseudoJet.hh"
 
-std::vector<std::pair<int, double>> had_corr(StPicoDst *e) {
+std::vector<std::pair<int, double>> had_corr(StPicoDst *e, bool exactMatch=true) {
   std::vector<std::vector<unsigned>> tow_map(4800);
   for (int i = 0; i < e->numberOfTracks(); ++i) {
     StPicoTrack *t = e->track(i);
     if (t->isPrimary()) {
       int match_idx = t->bemcTowerIndex();
-      if (match_idx >= 0)
-        tow_map[match_idx].push_back(i);
+      if (match_idx >= 0) {
+        if (exactMatch && t->isBemcMatchedExact())
+          tow_map[match_idx].push_back(i);
+        else if (!exactMatch)
+          tow_map[match_idx].push_back(i);
+      }
     }
   }
 
@@ -73,6 +77,7 @@ TEST(HadronicCorrection, Basic) {
   jetreader::Reader reader(filename);
   reader.init();
   reader.useHadronicCorrection(true, 1.0);
+
   while (reader.next()) {
     auto &pseudojets = reader.pseudojets();
     int idx = 0;
@@ -86,7 +91,35 @@ TEST(HadronicCorrection, Basic) {
     }
     auto towers = std::vector<fastjet::PseudoJet>(pseudojets.begin() + idx,
                                                   pseudojets.end());
+
     auto test_results = had_corr(reader.picoDst());
+    EXPECT_TRUE(compare_results(towers, test_results));
+  }
+}
+
+TEST(HadronicCorrection, InexactMatch) {
+  std::string filename = jetreader::GetTestFile();
+
+  jetreader::Reader reader(filename);
+  reader.init();
+  reader.useHadronicCorrection(true, 1.0);
+  reader.useApproximateTrackTowerMatching(true);
+
+  while (reader.next()) {
+    auto &pseudojets = reader.pseudojets();
+    int idx = 0;
+    for (int i = 0; i < pseudojets.size(); ++i) {
+      jetreader::VectorInfo info =
+          pseudojets[i].user_info<jetreader::VectorInfo>();
+      if (info.isBemcTower()) {
+        idx = i;
+        break;
+      }
+    }
+    auto towers = std::vector<fastjet::PseudoJet>(pseudojets.begin() + idx,
+                                                  pseudojets.end());
+
+    auto test_results = had_corr(reader.picoDst(), false);
     EXPECT_TRUE(compare_results(towers, test_results));
   }
 }

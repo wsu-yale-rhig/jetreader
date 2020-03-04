@@ -13,7 +13,7 @@ Reader::Reader(const std::string &input_file)
     : index_(-1), use_primary_tracks_(true),
       StPicoDstReader(input_file.c_str()), use_had_corr_(true),
       had_corr_fraction_(1.0), had_corr_map_(4800), use_mip_corr_(false),
-      manager_(this) {
+      approx_track_tower_match_(false), manager_(this) {
   event_selector_ = make_unique<EventSelector>();
   track_selector_ = make_unique<TrackSelector>();
   tower_selector_ = make_unique<TowerSelector>();
@@ -192,8 +192,10 @@ bool Reader::selectTracks() {
       // if we accept the track, then we will also use it for hadronic
       // correction/MIPS if it has been matched to a tower
       int match_tower_id = track->bemcTowerIndex();
-      if (match_tower_id >= 0)
-        had_corr_map_[match_tower_id].push_back(track_id);
+      if (match_tower_id >= 0) {
+        if (approx_track_tower_match_ || track->isBemcMatchedExact())
+          had_corr_map_[match_tower_id].push_back(track_id);
+      }
 
     } else if (track_status == TrackStatus::rejectEvent) {
       event_status = false;
