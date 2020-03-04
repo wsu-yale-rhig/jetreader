@@ -78,7 +78,7 @@ TEST(EventSelectorConfigHelper, testWriteConfig) {
   EXPECT_EQ(event_config[event_helper.refmultKey()][1].as<unsigned>(), 500);
   EXPECT_EQ(event_config[event_helper.refmultTypeKey()].as<unsigned>(), 0);
   EXPECT_EQ(event_config[event_helper.badRunIdKey()][0].as<unsigned>(),
-            15095020);
+            15097040);
   EXPECT_EQ(event_config[event_helper.badRunIdFilekey()][0].as<std::string>(),
             "tmp_runid_file_config_test.txt");
 
@@ -286,7 +286,7 @@ TEST(EventSelectorConfigHelper, testLoadConfigBadRun) {
   EXPECT_EQ(status, true);
 
   // check bad run cut
-  event.setRunId(15095020);
+  event.setRunId(15097040);
   status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
                                                                         : false;
   EXPECT_EQ(status, true);
@@ -336,7 +336,7 @@ TEST(EventSelectorConfigHelper, testLoadConfigBadRunFile) {
   EXPECT_EQ(status, true);
 
   // check bad run cut
-  event.setRunId(15095020);
+  event.setRunId(15097040);
   status = selector.select(&event) == jetreader::EventStatus::rejectRun ? true
                                                                         : false;
   EXPECT_EQ(status, true);

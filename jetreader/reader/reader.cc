@@ -191,46 +191,49 @@ bool Reader::selectTracks() {
 
       // if we accept the track, then we will also use it for hadronic
       // correction/MIPS if it has been matched to a tower
-      int pid_trait_id = track->bemcPidTraitsIndex();
-      if (pid_trait_id >= 0 && chain()->GetBranchStatus("EmcPidTraits")) {
-        StPicoBEmcPidTraits *bemctrait = picoDst()->bemcPidTraits(pid_trait_id);
-        if (bemctrait == nullptr)
-          continue;
-        int match_tow_id = bemctrait->btowId();
-        if (match_tow_id >= 0)
-          had_corr_map_[match_tow_id - 1].push_back(track_id);
-      }
-    } else if (track_status == TrackStatus::rejectEvent)
+      int match_tower_id = track->bemcTowerIndex();
+      if (match_tower_id >= 0)
+        had_corr_map_[match_tower_id].push_back(track_id);
+
+    } else if (track_status == TrackStatus::rejectEvent) {
       event_status = false;
+    }
   }
   return event_status;
 }
 
 bool Reader::selectTowers() {
+  int init_size = pseudojets_.size();
   bool event_status = true;
   TVector3 vertex = picoDst()->event()->primaryVertex();
   for (unsigned tow_idx = 0; tow_idx < picoDst()->numberOfBTowHits();
        ++tow_idx) {
-    StPicoBTowHit *tower = picoDst()->btowHit(tow_idx);
+    StPicoBTowHit tower = *picoDst()->btowHit(tow_idx);
     unsigned tower_id = tow_idx + 1;
     double eta = bemc_helper_.towerEta(tower_id);
     double phi = bemc_helper_.towerPhi(tower_id);
     double corrected_eta =
         bemc_helper_.vertexCorrectedEta(tower_id, vertex.Z());
     TowerStatus tower_status =
-        tower_selector_->select(tower, tower_id, corrected_eta);
+        tower_selector_->select(&tower, tower_id, corrected_eta);
     if (tower_status == TowerStatus::acceptTower) {
-      double e_corr = tower->energy();
+      double e_corr = tower.energy();
       if (use_had_corr_)
         e_corr = towerHadronicCorrection(tow_idx);
       else if (use_mip_corr_)
         e_corr = towerMIPCorrection(tow_idx, eta);
-      if (e_corr > 0.0) {
-        pseudojets_.push_back(
-            MakePseudoJet(*tower, tower_id, eta, phi, corrected_eta, e_corr));
+      // check if corrected ET is still valid
+      tower.setEnergy(e_corr);
+      if (e_corr > 0.0 &&
+          tower_selector_->select(&tower, tower_id, corrected_eta) ==
+              TowerStatus::acceptTower) {
+        pseudojets_.push_back(MakePseudoJet(tower, tower_id, eta, phi,
+                                            corrected_eta, e_corr,
+                                            had_corr_map_[tow_idx]));
       }
-    } else if (tower_status == TowerStatus::rejectEvent)
+    } else if (tower_status == TowerStatus::rejectEvent) {
       event_status = false;
+    }
   }
   return event_status;
 }
@@ -267,7 +270,7 @@ double Reader::towerHadronicCorrection(unsigned tow_idx) {
 
 bool Reader::findNextGoodRun() {
   std::vector<std::pair<std::string, int>> status_map;
-  
+
   for (int i = 0; i < StPicoArrays::NAllPicoArrays; ++i) {
     std::string branchname = StPicoArrays::picoArrayNames[i];
     bool status = chain()->GetBranchStatus(branchname.c_str());
@@ -285,7 +288,7 @@ bool Reader::findNextGoodRun() {
   bool found_good_run = false;
   int current_event = index_;
   EventStatus event_status = event_selector_->select(picoDst()->event());
-  
+
   while (event_status == EventStatus::rejectRun) {
     // attempt to load next entry
     ++current_event;
@@ -300,7 +303,7 @@ bool Reader::findNextGoodRun() {
       found_good_run = true;
       break;
     }
-    
+
     // check if we're at the end of the chain - if so, break
     if (current_event >= chain()->GetEntries() - 1)
       break;
@@ -310,7 +313,7 @@ bool Reader::findNextGoodRun() {
   for (auto &branch : status_map)
     chain()->SetBranchStatus(branch.first.c_str(), branch.second);
   readEvent(current_event);
-  
+
   return found_good_run;
 }
 

@@ -51,17 +51,19 @@ TEST(VectorInfo, tower_assignment) {
   unsigned adc = 20;
   double e = 5.2;
   double raw_eta = 0.5;
+  std::vector<unsigned> matched{5, 79, 352};
   
   tow.setAdc(adc);
   tow.setEnergy(e);
 
   jetreader::VectorInfo info;
-  info.setTower(tow, id, raw_eta);
+  info.setTower(tow, id, raw_eta, matched);
 
   EXPECT_EQ(id, info.towerId());
   EXPECT_EQ(adc, info.towerAdc());
   EXPECT_NEAR(raw_eta, info.towerRawEta(), 1e-5);
   EXPECT_NEAR(e, info.towerRawE(), 1e-5);
+  EXPECT_EQ(matched, info.matchedTracks());
   EXPECT_EQ(false, info.isPrimary());
   EXPECT_EQ(false, info.isGlobal());
   EXPECT_EQ(true, info.isBemcTower());

@@ -36,11 +36,11 @@ std::string GetTestFile() {
   if (host.find("warrior") != fail || host.find("rhi1") != fail ||
       host.find("rhi2") != fail || host.find("rhi3") != fail ||
       host.find("rhi4") != fail || host.find("wsu") != fail)
-    filepath = "/nfs/rhi/STAR/Data/jetreader_test_pico/"
-               "jetreader_p18ih_auau_2014_test.picoDst.root";
+    filepath = "/tier2/home/groups/rhi/STAR/Data/jetreader_test_pico/"
+               "jetreader_sl20a_auau_2014_test.picoDst.root";
   else if (host.find("gauss") != fail)
     filepath = "/Users/nick/physics/data/pico_test/"
-               "jetreader_p18ih_auau_2014_test.picoDst.root";
+               "jetreader_sl20a_auau_2014_test.picoDst.root";
   else
     JETREADER_THROW("Could not identify hostname: no input file found");
 
@@ -115,12 +115,12 @@ std::pair<YAML::Node, std::string> GetEventConfig(bool with_bad_runs,
   event_config[event_helper.refmultKey()].push_back(500);
   event_config[event_helper.refmultTypeKey()] = 0;
   if (with_bad_runs)
-    event_config[event_helper.badRunIdKey()].push_back(15095020);
+    event_config[event_helper.badRunIdKey()].push_back(15097040);
   // create a bad run id file
   std::string runid_file_name = "tmp_runid_file_config_test.txt";
   std::ofstream runid_file_stream;
   runid_file_stream.open(runid_file_name);
-  runid_file_stream << 15095020;
+  runid_file_stream << 15097040;
   runid_file_stream.close();
   if (with_bad_run_files)
     event_config[event_helper.badRunIdFilekey()].push_back(runid_file_name);

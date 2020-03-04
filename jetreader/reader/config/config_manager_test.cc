@@ -103,48 +103,55 @@ bool checkPseuodjets(std::vector<fastjet::PseudoJet> &event,
           bad_towers.push_back(t);
     }
   }
-  
 
   for (auto &jet : event) {
     jetreader::VectorInfo info = jet.user_info<jetreader::VectorInfo>();
     if (info.isPrimary()) {
       if (track_config[track_helper.maxDcaKey()]) {
-        if (info.dca() > track_config[track_helper.maxDcaKey()].as<double>())
+        if (info.dca() > track_config[track_helper.maxDcaKey()].as<double>()) {
           return false;
+        }
       }
       if (track_config[track_helper.minNhitsKey()]) {
         if (info.nhits() <
-            track_config[track_helper.minNhitsKey()].as<unsigned>())
+            track_config[track_helper.minNhitsKey()].as<unsigned>()) {
           return false;
+        }
       }
       if (track_config[track_helper.minNhitsFracKey()]) {
         double nhitfrac = (double)info.nhits() / info.nhitsPoss();
         if (nhitfrac <
-            track_config[track_helper.minNhitsFracKey()].as<double>())
+            track_config[track_helper.minNhitsFracKey()].as<double>()) {
           return false;
+        }
       }
       if (track_config[track_helper.minPtKey()]) {
-        if (jet.pt() < track_config[track_helper.minPtKey()].as<double>())
+        if (jet.pt() < track_config[track_helper.minPtKey()].as<double>()) {
           return false;
+        }
       }
       if (track_config[track_helper.maxPtKey()]) {
-        if (jet.pt() > track_config[track_helper.maxPtKey()].as<double>())
+        if (jet.pt() > track_config[track_helper.maxPtKey()].as<double>()) {
           return false;
+        }
       }
     } else if (info.isBemcTower()) {
       if (tower_config[tower_helper.minEtKey()]) {
-        if (jet.pt() < tower_config[tower_helper.minEtKey()].as<double>())
+        if (jet.pt() < tower_config[tower_helper.minEtKey()].as<double>()) {
           return false;
+        }
       }
       if (tower_config[tower_helper.maxEtKey()]) {
-        if (jet.pt() > tower_config[tower_helper.maxEtKey()].as<double>())
+        if (jet.pt() > tower_config[tower_helper.maxEtKey()].as<double>()) {
           return false;
+        }
       }
       if (bad_towers.size()) {
         unsigned tow_id = info.towerId();
         for (auto &id : bad_towers)
-          if (tow_id == id)
+          if (tow_id == id) {
             return false;
+          }
       }
     } else if (info.isGlobal()) {
       std::cerr << "should not have global tracks!" << std::endl;

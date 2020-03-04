@@ -16,50 +16,52 @@
 
 #include "fastjet/PseudoJet.hh"
 
-std::unordered_map<unsigned, double> had_corr(StPicoDst *e) {
-  std::unordered_map<unsigned, double> ret;
+std::vector<std::pair<int, double>> had_corr(StPicoDst *e) {
   std::vector<std::vector<unsigned>> tow_map(4800);
   for (int i = 0; i < e->numberOfTracks(); ++i) {
     StPicoTrack *t = e->track(i);
     if (t->isPrimary()) {
-      if (t->bemcPidTraitsIndex() >= 0) {
-        StPicoBEmcPidTraits *bemctrait =
-            e->bemcPidTraits(t->bemcPidTraitsIndex());
-        int match_tow_id = bemctrait->btowId();
-        if (match_tow_id > 0) {
-          tow_map[match_tow_id-1].push_back(i);
-          // tow_map.push_back({match_tow_id, i});
-        }
-      }
+      int match_idx = t->bemcTowerIndex();
+      if (match_idx >= 0)
+        tow_map[match_idx].push_back(i);
     }
   }
+
+  std::vector<std::pair<int, double>> ret(4800);
   for (int i = 0; i < e->numberOfBTowHits(); ++i) {
     StPicoBTowHit *h = e->btowHit(i);
     std::vector<unsigned> matched_tracks = tow_map[i];
     double energy = h->energy();
+    int matched = 0;
     for (auto &idx : matched_tracks) {
       StPicoTrack *t = e->track(idx);
       double ptot = t->pPtot();
       energy -= ptot;
+      matched++;
     }
     if (energy > 0)
-      ret[i + 1] = energy;
+      ret[i] = {matched, energy};
+    else {
+      ret[i] = {matched, 0.0};
+    }
   }
   return ret;
 }
 
 bool compare_results(std::vector<fastjet::PseudoJet> &s1,
-                     std::unordered_map<unsigned, double> &s2) {
+                     std::vector<std::pair<int, double>> &s2) {
   bool status = true;
   for (int i = 0; i < s1.size(); ++i) {
     fastjet::PseudoJet &ps = s1[i];
+    double e1 = ps.E();
     jetreader::VectorInfo info = ps.user_info<jetreader::VectorInfo>();
-    if (info.isBemcTower()) {
-      double e1 = ps.E();
-      double e2 = s2[info.towerId()];
-      if (fabs(e1 - e2) > 1e-3) {
-        status = false;
-      }
+    int tow_idx = info.towerId() - 1;
+    int reader_matched = info.matchedTracks().size();
+    int hadcorr_matched = s2[tow_idx].first;
+    double e2 = s2[tow_idx].second;
+
+    if (reader_matched != hadcorr_matched || fabs(e1 - e2) > 1e-3) {
+      status = false;
     }
   }
   return status;
@@ -73,7 +75,18 @@ TEST(HadronicCorrection, Basic) {
   reader.useHadronicCorrection(true, 1.0);
   while (reader.next()) {
     auto &pseudojets = reader.pseudojets();
+    int idx = 0;
+    for (int i = 0; i < pseudojets.size(); ++i) {
+      jetreader::VectorInfo info =
+          pseudojets[i].user_info<jetreader::VectorInfo>();
+      if (info.isBemcTower()) {
+        idx = i;
+        break;
+      }
+    }
+    auto towers = std::vector<fastjet::PseudoJet>(pseudojets.begin() + idx,
+                                                  pseudojets.end());
     auto test_results = had_corr(reader.picoDst());
-    EXPECT_TRUE(compare_results(pseudojets, test_results));
+    EXPECT_TRUE(compare_results(towers, test_results));
   }
 }

@@ -19,13 +19,14 @@ fastjet::PseudoJet MakePseudoJet(const StPicoTrack &track, TVector3 vertex,
 
 fastjet::PseudoJet MakePseudoJet(const StPicoBTowHit &tower, unsigned tower_id,
                                  double eta, double phi, double eta_corr,
-                                 double e_corr) {
+                                 double e_corr,
+                                 std::vector<unsigned> &matched_tracks) {
   double et = e_corr / cosh(eta_corr);
   double mass = 0.0;
   fastjet::PseudoJet j;
   j.reset_PtYPhiM(et, eta_corr, phi, mass);
 
-  VectorInfo* info = new VectorInfo(tower, tower_id, eta);
+  VectorInfo *info = new VectorInfo(tower, tower_id, eta, matched_tracks);
   j.set_user_info(info);
 
   return j;

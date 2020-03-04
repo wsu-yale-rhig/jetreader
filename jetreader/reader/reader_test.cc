@@ -38,7 +38,7 @@ TEST(Reader, Load) {
   jetreader::Reader reader(filename);
   reader.init();
 
-  EXPECT_EQ(reader.chain()->GetEntries(), 2652);
+  EXPECT_EQ(reader.chain()->GetEntries(), 624);
 }
 
 TEST(Reader, ReadEvent) {
@@ -48,8 +48,8 @@ TEST(Reader, ReadEvent) {
   reader.init();
 
   EXPECT_NE(jetreader::EventStatus::rejectEvent, reader.readEvent(5));
-  EXPECT_EQ(reader.picoDst()->event()->runId(), 15095020);
-  EXPECT_EQ(reader.picoDst()->event()->eventId(), 617739);
+  EXPECT_EQ(reader.picoDst()->event()->runId(), 15097040);
+  EXPECT_EQ(reader.picoDst()->event()->eventId(), 22661);
 }
 
 TEST(Reader, Next) {
@@ -70,7 +70,7 @@ TEST(Reader, Next) {
     continue;
   }
 
-  EXPECT_EQ(reader.chain()->GetReadEntry(), 2651);
+  EXPECT_EQ(reader.chain()->GetReadEntry(), 623);
 }
 
 TEST(Reader, MixedReading) {

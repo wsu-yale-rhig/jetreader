@@ -81,6 +81,7 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   double e = 5.2;
   double e_corr = 5.3;
   TVector3 vertex(0, 0, 0);
+  std::vector<unsigned> matched{5, 25, 38};
 
   double eta = helper.towerEta(id);
   double phi = helper.towerPhi(id);
@@ -89,7 +90,7 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   tow.setAdc(adc);
   tow.setEnergy(e);
 
-  auto j = jetreader::MakePseudoJet(tow, id, eta, phi, eta_corr, e_corr);
+  auto j = jetreader::MakePseudoJet(tow, id, eta, phi, eta_corr, e_corr, matched);
   jetreader::VectorInfo i = j.user_info<jetreader::VectorInfo>();
 
   EXPECT_NEAR(e_corr, j.E(), 1e-5);
@@ -99,4 +100,5 @@ TEST(ReaderUtils, MakePseudoJetFromTower) {
   EXPECT_NEAR(e, i.towerRawE(), 1e-4);
   EXPECT_EQ(id, i.towerId());
   EXPECT_EQ(adc, i.towerAdc());
+  EXPECT_EQ(matched, i.matchedTracks());
 }
