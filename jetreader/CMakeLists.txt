@@ -26,6 +26,7 @@ target_link_libraries(jetreader PRIVATE ${JR_DEPENDENCY_LIBS})
 target_include_directories(jetreader INTERFACE $<INSTALL_INTERFACE:include>)
 target_compile_options(jetreader INTERFACE "--std=c++11")
 install(TARGETS jetreader EXPORT JRTargets DESTINATION lib)
+install(TARGETS yaml-cpp DESTINATION lib)
 
 ## declare libraries
 set(JR_LIBS jetreader)
