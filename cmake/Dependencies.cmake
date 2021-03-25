@@ -22,6 +22,7 @@ JR_include_directories(${PICO_INCLUDE_DIRS})
 ## yaml-cpp 
 set(TEMP_BUILD_SHARED_LIBS ${BUILD_SHARED_LIBS})
 set(BUILD_SHARED_LIBS ON)
+set(YAML_BUILD_SHARED_LIBS ON CACHE BOOL "build dynamic library")
 set(YAML_CPP_BUILD_TESTS OFF CACHE BOOL "do not built yaml-cpp tests")
 
 ## add the yaml library
