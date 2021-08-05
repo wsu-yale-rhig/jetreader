@@ -151,6 +151,18 @@ std::set<unsigned> GetTriggerIDs(std::string token) {
     ret = std::set<unsigned>{500904};
   else if (token == "y15paubbcmb")
     ret = std::set<unsigned>{500008, 500018};
+  else if (token == "y18zrzrvpdmb30")
+    ret = std::set<unsigned>{600001, 600011, 600021, 600031};
+  else if (token == "y18ruruvpdmb30")
+    ret = std::set<unsigned>{600001, 600011, 600021, 600031};
+  else if (token == "y18zrzrbht2")
+    ret = std::set<unsigned>{600203, 600213};
+  else if (token == "y18rurubht2")
+    ret = std::set<unsigned>{600203, 600213};
+  else if (token == "y18zrzrbht2l2gamma")
+    ret = std::set<unsigned>{600204, 600214};
+  else if (token == "y18rurubht2l2gamma")
+    ret = std::set<unsigned>{600204, 600214};
   else
     std::cerr << "trigger string unknown: " << token << std::endl;
 

@@ -13,7 +13,7 @@
 
 namespace jetreader {
 
-enum class CentDefId { Run14LowMid, Run14 };
+  enum class CentDefId { Run14LowMid, Run14 , Run18Ru, Run18Zr};
 
 class CentralityDef {
 public:
