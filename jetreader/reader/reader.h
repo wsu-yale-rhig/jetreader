@@ -65,6 +65,9 @@ public:
   bool primaryTracks() { return use_primary_tracks_; }
   bool globalTracks() { return !use_primary_tracks_; }
 
+  // selection embedding files so that it can read mc particles
+  void EmbeddingFile(bool flag);
+
   // turn on hadronic correction or MIP correction for towers. Fraction is the
   // percent of a track's p to subtract from the corresponding tower E in
   // hadronic correction. Only one correction scheme can be active at one time
@@ -135,6 +138,7 @@ private:
   // event should be rejected, return true otherwise.
   bool selectTracks();
   bool selectTowers();
+  bool selectParticles();
 
   // tower E correction schemes - either MIP or hadronic correction
   double towerMIPCorrection(unsigned tow_idx, double tow_eta);
@@ -149,6 +153,8 @@ private:
   int64_t index_;
 
   bool use_primary_tracks_;
+
+  bool is_embedding_;
 
   bool use_had_corr_;
   double had_corr_fraction_;
