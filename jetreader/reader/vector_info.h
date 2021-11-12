@@ -54,6 +54,7 @@ public:
   double towerRawEta() const { return tower_raw_eta_; }
   double towerRawE() const { return tower_raw_e_; }
   double startVtx() const { return startVtx_; }
+  int getCharge() const { return charge_; }
   double stopVtx() const { return stopVtx_; }
   std::vector<unsigned> matchedTracks() const { return matched_tracks_; }
 
